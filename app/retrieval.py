@@ -340,13 +340,28 @@ def load_catalog() -> list[dict]:
 
 def build_faiss_index(data: list[dict]) -> faiss.IndexFlatIP:
     global model
-    model = TextEmbedding() # Fast and lightweight ONNX model
+    # Use the absolute smallest model to save RAM
+    model = TextEmbedding(
+        model_name="sentence-transformers/all-MiniLM-L6-v2",
+        providers=["CPUExecutionProvider"]
+    )
     texts = [build_embed_text(item) for item in data]
-    # fastembed returns a generator, convert to list then numpy array
+    
+    # Process in chunks to avoid memory spikes
     vecs = np.array(list(model.embed(texts)))
+    
+    # Free up the source texts immediately
+    del texts
+    gc.collect()
+    
     dim = vecs.shape[1]
     idx = faiss.IndexFlatIP(dim)
     idx.add(vecs.astype("float32"))
+    
+    # Free up the temporary vectors
+    del vecs
+    gc.collect()
+    
     print(f"[retrieval] FAISS index built: {idx.ntotal} vectors, dim={dim}")
     return idx
 
