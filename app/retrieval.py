@@ -2,11 +2,16 @@ import os
 import json
 import math
 import httpx
+import gc
 import numpy as np
 import faiss
+import torch
 from collections import defaultdict
 from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
+
+# Limit torch threads to save memory on Render Free Tier
+torch.set_num_threads(1)
 
 load_dotenv()
 
@@ -453,6 +458,7 @@ def search(query: str, top_k: int = 20) -> list[dict]:
 # ============================================================================
 
 def startup():
+    gc.collect()
     global catalog, index, bm25_index
     catalog = load_catalog()
     index = build_faiss_index(catalog)

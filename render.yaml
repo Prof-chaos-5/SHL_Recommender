@@ -2,8 +2,9 @@ services:
   - type: web
     name: shl-recommender
     env: python
-    buildCommand: pip install -r requirements.txt && python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+    buildCommand: pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu && python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
     envVars:
       - key: CATALOG_URL
         sync: false
@@ -15,4 +16,8 @@ services:
         sync: false
       - key: PYTHON_VERSION
         value: 3.12.0
+      - key: OMP_NUM_THREADS
+        value: "1"
+      - key: MKL_NUM_THREADS
+        value: "1"
 

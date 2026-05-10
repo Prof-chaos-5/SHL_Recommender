@@ -42,7 +42,7 @@ Read the full technical deep dive in the **[Approach & Architecture Document](AP
    Copy `.env.example` to `.env` and add your OpenAI API key and the Catalog URL.
    ```powershell
    cp .env.example .env
-   # Edit .env to include: OPENAI_API_KEY=your_key_here
+  
    ```
 
 3. **Run**:
