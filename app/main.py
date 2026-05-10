@@ -32,7 +32,7 @@ def health():
 
 
 @app.post("/chat", response_model=ChatResponse)
-def chat(request: ChatRequest):
+async def chat_endpoint(request: ChatRequest):
     if not request.messages:
         raise HTTPException(status_code=422, detail="messages cannot be empty")
 
