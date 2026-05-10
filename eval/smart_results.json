@@ -1,0 +1,477 @@
+{
+  "model": "openai/gpt-oss-120b",
+  "mean_recall@10": 0.7357142857142857,
+  "traces": [
+    {
+      "trace_id": "C1",
+      "expected": [
+        "Occupational Personality Questionnaire OPQ32r",
+        "OPQ Universal Competency Report 2.0",
+        "OPQ Leadership Report"
+      ],
+      "recommended": [
+        "Occupational Personality Questionnaire OPQ32r",
+        "OPQ Universal Competency Report 2.0",
+        "OPQ Leadership Report"
+      ],
+      "conversation": [
+        {
+          "role": "user",
+          "content": "We need a solution for senior leadership."
+        },
+        {
+          "role": "assistant",
+          "content": "For senior leadership roles, I recommend the following assessments: Occupational Personality Questionnaire OPQ32r, OPQ Universal Competency Report 2.0, and OPQ Leadership Report. These assessments will provide a comprehensive understanding of the candidate's leadership style, behavioral tendencies, and potential to succeed in a senior leadership role."
+        },
+        {
+          "role": "user",
+          "content": "The pool consists of CXOs, director-level positions; people with more than 15 years of experience. We're looking to compare candidates against a leadership benchmark for selection."
+        },
+        {
+          "role": "assistant",
+          "content": "For senior leadership roles, I recommend the following assessments to compare candidates against a leadership benchmark: Occupational Personality Questionnaire OPQ32r, OPQ Universal Competency Report 2.0, and OPQ Leadership Report."
+        },
+        {
+          "role": "user",
+          "content": "That's perfect, the OPQ32r is exactly what we need to measure 32 workplace behaviour dimensions including strategic thinking, influencing style, and leadership. Selection is our goal, comparing candidates against a leadership benchmark, so this should work well."
+        },
+        {
+          "role": "assistant",
+          "content": "The OPQ32r, OPQ Universal Competency Report 2.0, and OPQ Leadership Report will provide a comprehensive evaluation of your senior leadership candidates. These assessments will help you compare them against a leadership benchmark and make informed selection decisions."
+        }
+      ],
+      "turns_used": 3,
+      "recall@10": 1.0
+    },
+    {
+      "trace_id": "C10",
+      "expected": [
+        "SHL Verify Interactive G+",
+        "Graduate Scenarios"
+      ],
+      "recommended": [
+        "SHL Verify Interactive G+",
+        "Graduate Scenarios",
+        "OPQ Candidate Report 2.0"
+      ],
+      "conversation": [
+        {
+          "role": "user",
+          "content": "We run a graduate management trainee scheme. We need a full battery \u2014 cognitive, personality, and situational judgement. All recent graduates."
+        },
+        {
+          "role": "assistant",
+          "content": "For a graduate management trainee scheme, I recommend a combination of cognitive, personality, and situational judgement assessments to evaluate the candidates' abilities. The following assessments will provide a comprehensive evaluation of the candidates."
+        },
+        {
+          "role": "user",
+          "content": "That sounds good, but can you remove the OPQ32r and replace it with something shorter, as candidates have been complaining that it takes too long. Let's finalize the list with Verify G+ and Graduate Scenarios."
+        },
+        {
+          "role": "assistant",
+          "content": "I've replaced the Occupational Personality Questionnaire OPQ32r with the OPQ Candidate Report 2.0 to reduce the overall assessment time. However, please note that the OPQ Candidate Report 2.0 is not a substitute for the full OPQ32r and is only a brief narrative report. For a more comprehensive personality assessment, the OPQ32r is still recommended. The final list includes SHL Verify Interactive G+, Graduate Scenarios, and OPQ Candidate Report 2.0."
+        }
+      ],
+      "turns_used": 2,
+      "recall@10": 1.0
+    },
+    {
+      "trace_id": "C2",
+      "expected": [
+        "Smart Interview Live Coding",
+        "Linux Programming (General)",
+        "Networking and Implementation (New)",
+        "SHL Verify Interactive G+",
+        "Occupational Personality Questionnaire OPQ32r"
+      ],
+      "recommended": [
+        "Smart Interview Live Coding",
+        "SHL Verify Interactive G+",
+        "Occupational Personality Questionnaire OPQ32r",
+        "Networking and Implementation (New)"
+      ],
+      "conversation": [
+        {
+          "role": "user",
+          "content": "I'm hiring a senior Rust engineer for high-performance networking infrastructure. What assessments should I use?"
+        },
+        {
+          "role": "assistant",
+          "content": "For a senior Rust engineer role in high-performance networking infrastructure, I recommend the following assessments. Please note that there is no Rust-specific test in the catalog, so I will suggest the closest category."
+        },
+        {
+          "role": "user",
+          "content": "Yes, go ahead. Should I also add a cognitive test for this level?"
+        },
+        {
+          "role": "assistant",
+          "content": "For a senior Rust engineer role in high-performance networking infrastructure, I recommend the following assessments. Please note that there is no Rust-specific test in the catalog, so I will suggest the closest category. Since the role is senior-level, I also recommend including a cognitive test and a personality assessment."
+        },
+        {
+          "role": "user",
+          "content": "That works. Thanks."
+        },
+        {
+          "role": "assistant",
+          "content": "I've recommended assessments for a senior Rust engineer role in high-performance networking infrastructure. Please review the list below."
+        }
+      ],
+      "turns_used": 3,
+      "recall@10": 0.8
+    },
+    {
+      "trace_id": "C3",
+      "expected": [
+        "SVAR - Spoken English (US) (New)",
+        "Contact Center Call Simulation (New)",
+        "Entry Level Customer Serv-Retail & Contact Center",
+        "Customer Service Phone Simulation"
+      ],
+      "recommended": [
+        "Contact Center Call Simulation (New)",
+        "Customer Service Phone Simulation",
+        "Entry Level Customer Serv-Retail & Contact Center",
+        "SVAR - Spoken English (US) (New)"
+      ],
+      "conversation": [
+        {
+          "role": "user",
+          "content": "We're screening 500 entry-level contact centre agents. Inbound calls, customer service focus. What should we use?"
+        },
+        {
+          "role": "assistant",
+          "content": "For entry-level contact centre agents with an inbound calls and customer service focus, I recommend using the following assessments: Entry Level Customer Serv-Retail & Contact Center, SVAR - Spoken English (US) (New), and Contact Center Call Simulation (New). These assessments will help you evaluate the candidates' customer service skills, spoken English abilities, and ability to handle customer concerns over the phone."
+        },
+        {
+          "role": "user",
+          "content": "That sounds like a good starting point, but I'd like to confirm that we'll be using the Contact Center Call Simulation for the initial volume of candidates and the Customer Service Phone Simulation for the finalists, is that correct?"
+        },
+        {
+          "role": "assistant",
+          "content": "For the initial volume of candidates, I recommend using the Contact Center Call Simulation (New) to assess their ability to handle customer concerns over the phone. For the finalists, you can use the Customer Service Phone Simulation to further evaluate their customer service skills in a more in-depth manner."
+        },
+        {
+          "role": "user",
+          "content": "That's perfect, we'll use the new Contact Center Call Simulation for the initial volume and the old solution, Customer Service Phone Simulation, for the finalists. I'm glad we confirmed that."
+        },
+        {
+          "role": "assistant",
+          "content": "I'm glad we confirmed the assessment plan. To recap, we'll be using the Contact Center Call Simulation (New) for the initial volume of candidates and the Customer Service Phone Simulation for the finalists. We'll also include the Entry Level Customer Serv-Retail & Contact Center and SVAR - Spoken English (US) (New) assessments in our evaluation process."
+        }
+      ],
+      "turns_used": 3,
+      "recall@10": 1.0
+    },
+    {
+      "trace_id": "C4",
+      "expected": [
+        "SHL Verify Interactive \u2013 Numerical Reasoning",
+        "Financial Accounting (New)",
+        "Basic Statistics (New)",
+        "Graduate Scenarios",
+        "Occupational Personality Questionnaire OPQ32r"
+      ],
+      "recommended": [
+        "SHL Verify Interactive G+",
+        "Financial Accounting (New)",
+        "Graduate Scenarios"
+      ],
+      "conversation": [
+        {
+          "role": "user",
+          "content": "Hiring graduate financial analysts \u2014 final-year students, no work experience. We need numerical reasoning and a finance knowledge test."
+        },
+        {
+          "role": "assistant",
+          "content": "For hiring graduate financial analysts, I recommend the following assessments to evaluate numerical reasoning and finance knowledge."
+        },
+        {
+          "role": "user",
+          "content": "That sounds good, can you also add a situational judgement element to assess their work-context decision making skills, as these graduates have no prior work experience."
+        },
+        {
+          "role": "assistant",
+          "content": "I've added a situational judgement test to assess the graduates' decision-making skills in a work context. Here are my recommendations:"
+        }
+      ],
+      "turns_used": 2,
+      "recall@10": 0.4
+    },
+    {
+      "trace_id": "C5",
+      "expected": [
+        "Global Skills Assessment",
+        "Global Skills Development Report",
+        "Occupational Personality Questionnaire OPQ32r",
+        "OPQ MQ Sales Report",
+        "Sales Transformation 2.0 - Individual Contributor"
+      ],
+      "recommended": [
+        "Occupational Personality Questionnaire OPQ32r",
+        "OPQ MQ Sales Report",
+        "SHL Verify Interactive G+",
+        "Sales Transformation 2.0 - Individual Contributor"
+      ],
+      "conversation": [
+        {
+          "role": "user",
+          "content": "As part of our restructuring and annual talent audit, we need to re-skill our Sales organization. What solutions do you recommend?"
+        },
+        {
+          "role": "assistant",
+          "content": "For re-skilling your Sales organization, I recommend a combination of assessments to evaluate their current skills and identify areas for development. The following solutions can help: SHL Verify Interactive G+ for general cognitive ability, Occupational Personality Questionnaire OPQ32r for personality and behavioral insights, and Sales Transformation 2.0 - Individual Contributor for sales-specific skills. Additionally, the Sales Interview Guide can provide a framework for structured interviews."
+        },
+        {
+          "role": "user",
+          "content": "That's a good start, but I'd like to focus on using OPQ for everyone and then add the MQ Sales Report where we want motivators included. We'll keep the five solutions as our audit stack."
+        },
+        {
+          "role": "assistant",
+          "content": "I've added the OPQ32r and MQ Sales Report to the recommendations. I've also included the Sales Transformation 2.0 - Individual Contributor and the SHL Verify Interactive G+ to provide a comprehensive assessment of sales skills and cognitive abilities."
+        },
+        {
+          "role": "user",
+          "content": "That sounds like a solid plan, using OPQ for everyone and adding MQ only where we want motivators in the Sales Report. We'll keep the five solutions as our audit stack to re-skill our Sales organization."
+        },
+        {
+          "role": "assistant",
+          "content": "I've tailored the recommendations to fit your needs. The following assessments will be used for your Sales organization: OPQ32r for all, and MQ Sales Report where motivators are required. Additionally, I've included SHL Verify Interactive G+, Sales Transformation 2.0 - Individual Contributor, and OPQ Leadership Report to provide a comprehensive assessment."
+        },
+        {
+          "role": "user",
+          "content": "We'll use OPQ for everyone and add MQ only where we want motivators in the Sales Report; keeping the five solutions as our audit stack. What\u2019s the difference between OPQ and OPQ MQ Sales Report?"
+        },
+        {
+          "role": "assistant",
+          "content": "The main difference between OPQ and OPQ MQ Sales Report is that OPQ (Occupational Personality Questionnaire) provides a comprehensive assessment of an individual's personality and behavioral style, while the OPQ MQ Sales Report combines OPQ insights with sales-specific motivators and competencies. The OPQ MQ Sales Report is designed to provide a more detailed understanding of a salesperson's strengths, weaknesses, and motivations, and is typically used for sales roles where motivators are a key factor in success."
+        },
+        {
+          "role": "user",
+          "content": "That clears up the difference between OPQ and OPQ MQ Sales Report. We'll use OPQ for everyone and add MQ only where we want motivators in the Sales Report, keeping the five solutions as our audit stack."
+        },
+        {
+          "role": "assistant",
+          "content": "I've tailored the recommendations to fit your needs. The following assessments will be used for your Sales organization: OPQ32r for all, and OPQ MQ Sales Report where motivators are required. Additionally, I've included SHL Verify Interactive G+, Sales Transformation 2.0 - Individual Contributor, and OPQ Leadership Report to provide a comprehensive assessment."
+        },
+        {
+          "role": "user",
+          "content": "That sounds like a solid plan, using OPQ for everyone and adding MQ only where we want motivators in the Sales Report. We'll keep the five solutions as our audit stack to re-skill our Sales organization."
+        },
+        {
+          "role": "assistant",
+          "content": "I've tailored the recommendations to fit your needs. The following assessments will be used for your Sales organization: OPQ32r for all, and OPQ MQ Sales Report where motivators are required. Additionally, I've included SHL Verify Interactive G+, Sales Transformation 2.0 - Individual Contributor, and OPQ Leadership Report to provide a comprehensive assessment."
+        }
+      ],
+      "turns_used": 6,
+      "recall@10": 0.6
+    },
+    {
+      "trace_id": "C6",
+      "expected": [
+        "Manufac. & Indust. - Safety & Dependability 8.0",
+        "Workplace Health and Safety (New)"
+      ],
+      "recommended": [
+        "Manufac. & Indust. - Safety & Dependability 8.0"
+      ],
+      "conversation": [
+        {
+          "role": "user",
+          "content": "We're hiring plant operators for a chemical facility. Safety is absolute top priority \u2014 reliability, procedure compliance, never cutting corners. What do you recommend?"
+        },
+        {
+          "role": "assistant",
+          "content": "For plant operators in a chemical facility where safety is the top priority, I recommend the following assessments to ensure reliability, procedure compliance, and adherence to safety protocols."
+        },
+        {
+          "role": "user",
+          "content": "What's the difference between the DSI and the Safety & Dependability 8.0, can you help me understand which one is more suitable for our needs?"
+        },
+        {
+          "role": "assistant",
+          "content": "The Dependability and Safety Instrument (DSI) and the Manufacturing & Industrial - Safety & Dependability 8.0 are both assessments related to safety and dependability. The key difference lies in their focus and scope. The DSI is a short pre-screening tool that identifies potential employees who will have good dependability and safety habits, making it more general in its application. On the other hand, the Manufacturing & Industrial - Safety & Dependability 8.0 is a job-focused assessment that measures the behaviors underlying safe performance in an industrial setting, which might be more specific to your needs in a chemical facility. Considering your emphasis on safety and procedure compliance, I would recommend the Manufacturing & Industrial - Safety & Dependability 8.0 for its more targeted approach to industrial safety."
+        },
+        {
+          "role": "user",
+          "content": "We're industrial, so the 8.0 bundle is the right fit. The Safety & Dependability 8.0 is confirmed as the best choice for our needs."
+        },
+        {
+          "role": "assistant",
+          "content": "Based on your requirements for plant operators in a chemical facility with a strong emphasis on safety, I recommend the Manufacturing & Industrial - Safety & Dependability 8.0. This assessment is specifically designed to measure the behaviors that underlie safe performance in an industrial setting, aligning well with your needs."
+        },
+        {
+          "role": "user",
+          "content": "That confirms our earlier discussion, the Safety & Dependability 8.0 is the right choice for our industrial setting. We've confirmed that the 8.0 bundle is the best fit for our needs."
+        },
+        {
+          "role": "assistant",
+          "content": "I'm glad we confirmed the Manufacturing & Industrial - Safety & Dependability 8.0 as the best fit for your plant operator roles in a chemical facility. This assessment should help you identify candidates with strong safety and dependability traits."
+        }
+      ],
+      "turns_used": 4,
+      "recall@10": 0.5
+    },
+    {
+      "trace_id": "C7",
+      "expected": [
+        "HIPAA (Security)",
+        "Medical Terminology (New)",
+        "Microsoft Word 365 - Essentials (New)",
+        "Dependability and Safety Instrument (DSI)",
+        "Occupational Personality Questionnaire OPQ32r"
+      ],
+      "recommended": [
+        "HIPAA (Security)",
+        "Written English v1",
+        "SVAR - Spoken Spanish (North American) (New)",
+        "Occupational Personality Questionnaire OPQ32r",
+        "Dependability and Safety Instrument (DSI)"
+      ],
+      "conversation": [
+        {
+          "role": "user",
+          "content": "We're hiring bilingual healthcare admin staff in South Texas \u2014 they handle patient records and need to be assessed in Spanish. HIPAA compliance is critical. What assessments work?"
+        },
+        {
+          "role": "assistant",
+          "content": "For bilingual healthcare admin staff in South Texas, I recommend the following assessments: HIPAA (Security) for compliance, MS Word (New) and MS Excel (New) for administrative skills, and SVAR - Spoken Spanish (North American) (New) for Spanish language proficiency. Additionally, Occupational Personality Questionnaire OPQ32r can help evaluate their personality traits."
+        },
+        {
+          "role": "user",
+          "content": "They're functionally bilingual \u2014 English fluent for written work, so a hybrid approach would work best. Are we legally required under HIPAA to test all staff who touch patient records, and does this SHL test satisfy that requirement?"
+        },
+        {
+          "role": "assistant",
+          "content": "I'm having trouble processing that. Could you rephrase your request?"
+        },
+        {
+          "role": "user",
+          "content": "You already suggested a hybrid approach, which I think is a good fit since they're functionally bilingual with English fluency for written work. Can we just go with the hybrid approach and keep the shortlist as-is?"
+        },
+        {
+          "role": "assistant",
+          "content": "I can help with SHL assessment selection. For your bilingual healthcare admin staff, I recommend the following hybrid approach: HIPAA (Security) for compliance, Written English v1 or English Comprehension (New) for written English skills, and SVAR - Spoken Spanish (North American) (New) for Spanish language proficiency. Additionally, Occupational Personality Questionnaire OPQ32r can help evaluate their personality traits, and Dependability and Safety Instrument (DSI) for assessing their dependability."
+        },
+        {
+          "role": "user",
+          "content": "They're functionally bilingual \u2014 English fluent for written work, so a hybrid approach is a good fit. Are we legally required under HIPAA to test all staff who touch patient records, and does this SHL test satisfy that requirement?"
+        },
+        {
+          "role": "assistant",
+          "content": "I recommend the following assessments for your bilingual healthcare admin staff: HIPAA (Security), Written English v1, SVAR - Spoken Spanish (North American) (New), Occupational Personality Questionnaire OPQ32r, and Dependability and Safety Instrument (DSI)."
+        },
+        {
+          "role": "user",
+          "content": "Are we legally required under HIPAA to test all staff who touch patient records, and does this SHL test satisfy that requirement? Keep the shortlist as-is."
+        },
+        {
+          "role": "assistant",
+          "content": "I can only help with SHL assessment selection. For legal questions, please consult your compliance team."
+        },
+        {
+          "role": "user",
+          "content": "Understood, I'll check with our compliance team on the legal requirements. Keep the shortlist as-is."
+        },
+        {
+          "role": "assistant",
+          "content": "I've kept the shortlist as-is. Please review and let me know if you need any further changes."
+        },
+        {
+          "role": "user",
+          "content": "The shortlist looks good to me, I'm satisfied with the hybrid approach we've selected for our bilingual healthcare admin staff. I'll review the assessments with our team and get back to you if needed."
+        },
+        {
+          "role": "assistant",
+          "content": "The shortlist includes HIPAA (Security), Written English v1, SVAR - Spoken Spanish (North American) (New), Occupational Personality Questionnaire OPQ32r, and Dependability and Safety Instrument (DSI). If you need any further assistance, feel free to ask."
+        }
+      ],
+      "turns_used": 7,
+      "recall@10": 0.6
+    },
+    {
+      "trace_id": "C8",
+      "expected": [
+        "Microsoft Excel 365 (New)",
+        "Microsoft Word 365 (New)",
+        "MS Excel (New)",
+        "MS Word (New)",
+        "Occupational Personality Questionnaire OPQ32r"
+      ],
+      "recommended": [
+        "MS Excel (New)",
+        "MS Word (New)",
+        "Microsoft Word 365 (New)",
+        "Microsoft Excel 365 - Essentials (New)"
+      ],
+      "conversation": [
+        {
+          "role": "user",
+          "content": "I need to quickly screen admin assistants for Excel and Word daily."
+        },
+        {
+          "role": "assistant",
+          "content": "For admin assistants, I recommend using the following assessments to screen for Excel and Word skills: MS Excel (New) and MS Word (New). These assessments will help you evaluate their ability to use these tools effectively."
+        },
+        {
+          "role": "user",
+          "content": "That sounds good, I'm okay with adding a simulation to capture their capabilities."
+        },
+        {
+          "role": "assistant",
+          "content": "I've added a simulation to the recommendations. The Microsoft Word 365 (New) and Microsoft Excel 365 - Essentials (New) simulations will evaluate the admin assistants' ability to perform tasks in a simulated environment."
+        }
+      ],
+      "turns_used": 2,
+      "recall@10": 0.6
+    },
+    {
+      "trace_id": "C9",
+      "expected": [
+        "Core Java (Advanced Level) (New)",
+        "Spring (New)",
+        "SQL (New)",
+        "Amazon Web Services (AWS) Development (New)",
+        "Docker (New)",
+        "SHL Verify Interactive G+",
+        "Occupational Personality Questionnaire OPQ32r"
+      ],
+      "recommended": [
+        "SHL Verify Interactive G+",
+        "Core Java (Advanced Level) (New)",
+        "Java Frameworks (New)",
+        "Spring (New)",
+        "Docker (New)",
+        "Amazon Web Services (AWS) Development (New)",
+        "Occupational Personality Questionnaire OPQ32r"
+      ],
+      "conversation": [
+        {
+          "role": "user",
+          "content": "Here's the JD for an engineer we need to fill. Can you recommend an assessment battery?\n>\n> \"Senior Full-Stack Engineer \u2014 5+ years across Core Java, Spring, REST API design, Angular, SQL/relational databases, AWS deployment, and Docker. Will own end-to-end microservice delivery, contribute to architectural decisions, and mentor mid-level engineers. Strong CI/CD and cloud-native experience required.\""
+        },
+        {
+          "role": "assistant",
+          "content": "Based on the job description, I recommend the following assessment battery for a Senior Full-Stack Engineer:"
+        },
+        {
+          "role": "user",
+          "content": "Before we finalize the assessment battery, I'd like to clarify a few things - can we drop REST API design since it's already covered in Spring, and also confirm if the Advanced level is suitable for Java given they'll be working on existing services?"
+        },
+        {
+          "role": "assistant",
+          "content": "I've removed REST API design from the considerations since it's covered under Spring. For Java, I recommend using the Core Java (Advanced Level) (New) assessment. Although they'll be working on existing services, the advanced level will still be suitable to gauge their overall Java proficiency, including their ability to understand and work with complex Java concepts. Here's the updated assessment battery:"
+        },
+        {
+          "role": "user",
+          "content": "That sounds good, but let's also add AWS and Docker to the assessment battery. And, by the way, I think we should keep Verify G+ on top of all the technical tests."
+        },
+        {
+          "role": "assistant",
+          "content": "I've added the AWS and Docker assessments to the battery. I've also kept Verify G+ as a top-level assessment to gauge the candidate's general cognitive ability. Here's the updated assessment battery:"
+        }
+      ],
+      "turns_used": 3,
+      "recall@10": 0.8571428571428571
+    }
+  ]
+}
