@@ -5,13 +5,9 @@ import httpx
 import gc
 import numpy as np
 import faiss
-import torch
 from collections import defaultdict
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
 from dotenv import load_dotenv
-
-# Limit torch threads to save memory on Render Free Tier
-torch.set_num_threads(1)
 
 load_dotenv()
 
@@ -200,7 +196,7 @@ KEYWORD_BOOST_MAP = {
 # Module-level state
 catalog: list[dict] = []
 index: faiss.IndexFlatIP = None
-model: SentenceTransformer = None
+model: TextEmbedding = None
 bm25_index: dict = {}
 
 
@@ -344,11 +340,10 @@ def load_catalog() -> list[dict]:
 
 def build_faiss_index(data: list[dict]) -> faiss.IndexFlatIP:
     global model
-    model = SentenceTransformer("all-MiniLM-L6-v2")
+    model = TextEmbedding() # Fast and lightweight ONNX model
     texts = [build_embed_text(item) for item in data]
-    vecs = model.encode(
-        texts, batch_size=64, show_progress_bar=True, normalize_embeddings=True
-    )
+    # fastembed returns a generator, convert to list then numpy array
+    vecs = np.array(list(model.embed(texts)))
     dim = vecs.shape[1]
     idx = faiss.IndexFlatIP(dim)
     idx.add(vecs.astype("float32"))
@@ -393,7 +388,7 @@ def search(query: str, top_k: int = 20) -> list[dict]:
     6. Return top_k
     """
     # 1. FAISS
-    q_vec = model.encode([query], normalize_embeddings=True).astype("float32")
+    q_vec = np.array(list(model.embed([query]))).astype("float32")
     faiss_scores, faiss_idxs = index.search(q_vec, top_k * 2)
     faiss_results = [
         (int(i), float(s))
