@@ -37,7 +37,7 @@ TRACES_PATH = BASE_DIR / "data" / "traces"
 RESULTS_PATH = BASE_DIR / "eval" / "smart_results.json"
 API_URL = "http://localhost:8000/chat"
 
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "openai/gpt-oss-120b"
 MAX_TURNS = 8
 REQUEST_DELAY = 2       # seconds between agent calls
 GROQ_DELAY = 0.5        # seconds between Groq calls

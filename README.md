@@ -1,19 +1,16 @@
-Here is the clean version of the `README.md` with all emojis removed.
-
-***
-
 # SHL Assessment Recommender Agent
 
-A production-grade conversational AI agent designed to help recruiters and hiring managers find the perfect SHL assessments for their roles. This project was developed with a rigorous, evaluation-driven approach to achieve state-of-the-art recommendation accuracy.
+A production-grade conversational AI agent designed to help recruiters and hiring managers find the perfect SHL assessments for their roles. While I initially implemented a **Hybrid RRF (FAISS + BM25)** approach, I pivoted to a specialized **BM25 Lite Engine** to achieve superior accuracy within tight memory constraints.
 
 Read the full technical deep dive in the **[Approach & Architecture Document](APPROACH.md)**.
 
 ## Key Features
 
-- **Hybrid RRF Retrieval (Recall@10: 0.735+)**: Combines semantic vector search (FAISS) with keyword-based BM25 using Reciprocal Rank Fusion (RRF) to solve "Semantic Drift" issues found in standard RAG implementations.
+- **BM25 Lite Retrieval (Mean Recall@10: 0.716)**: An optimized keyword engine that outperforms heavy ML models on this specific catalog by using domain-specific enrichment and weighted boosts.
+- **Extreme Memory Optimization**: Runs on ~200MB RAM, making it perfectly stable on standard cloud free tiers (e.g., Render Free Tier).
 - **Hardened Guardrails**: 
-  - **URL Safety Filter**: Post-processing validation layer that cross-references all agent output against the physical catalog to eliminate hallucinations.
-  - **Context-Weighted Querying**: Prevents early-conversation noise from diluting the search quality in long dialogues.
+  - **Groundedness Filter**: Strict validation layer that ensures every recommended assessment exists in the source catalog.
+  - **Clarification Loop**: Intelligently identifies vague queries and asks for missing context (Level, Role, Experience).
 - **Domain-Specific Intelligence**:
   - **Mandatory Assessment Pillar**: Enforces SHL's foundational testing standards (OPQ32r for professional roles, G+ for cognitive screening).
   - **Intelligent Proxying**: Gracefully handles tech stacks not in the catalog (e.g., Rust -> Linux/Networking) using specialized semantic enrichment.

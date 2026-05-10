@@ -1,6 +1,6 @@
 {
-  "model": "llama-3.3-70b-versatile",
-  "mean_recall@10": 0.7164285714285714,
+  "model": "openai/gpt-oss-120b",
+  "mean_recall@10": 0.7358571428571428,
   "traces": [
     {
       "trace_id": "C1",
