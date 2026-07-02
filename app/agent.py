@@ -282,9 +282,13 @@ def run_agent(messages: list[Message]) -> ChatResponse:
 
     # 3c. Closing — deterministic, no LLM call.
     if decision == "CLOSE":
+        candidates = _get_candidates(state, messages)
+        excluded = set(getattr(state, "excluded_items", None) or [])
+        ranked_ids = [c.get("entity_id") for c in sorted(candidates, key=lambda c: c.get("_score", 0), reverse=True)]
+        recommendations = schema_check(ground_and_repair(ranked_ids, candidates, excluded_names=excluded))
         return ChatResponse(
             reply="Glad that works! Good luck with the hiring process.",
-            recommendations=[],
+            recommendations=recommendations,
             end_of_conversation=True,
         )
 
