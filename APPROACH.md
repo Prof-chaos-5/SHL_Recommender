@@ -1,40 +1,332 @@
-# SHL Assessment Recommender Agent - Architecture & Approach
+# Agent Architecture
 
-## 1. Design Philosophy: Lean Systems Over Bloated Frameworks
-The core philosophy for this build was **Stateless Simplicity and Hardware-Aware Engineering**. While the system initially utilized a **Hybrid RRF (FAISS + BM25)** pipeline, I made a strategic pivot to a custom **BM25 Lite Retrieval Engine** to guarantee stability on constrained hardware.
+```text
+                           POST /chat
+                                │
+                                ▼
+                    Conversation Analyzer (LLM)
+                                │
+                                ▼
+                       Conversation State
+                                │
+                                ▼
+                      Agent Controller (Python)
+                                │
+     ┌──────────────┬───────────────┬───────────────┐
+     │              │               │               │
+     ▼              ▼               ▼               ▼
+ Slot Filling   Recommendation   Comparison      Refusal
+     │              │               │
+     │              ▼               ▼
+     │          Retriever       Retriever
+     │              │               │
+     │              ▼               ▼
+     │            Ranker         Ranker
+     │              │               │
+     │              ▼               ▼
+     │         Prompt Builder  Prompt Builder
+     │              │               │
+     │              ▼               ▼
+     │             LLM             LLM
+     │              │               │
+     └──────────────┴───────┬───────┘
+                            ▼
+                    Response Formatter
+                            ▼
+                    Schema Validator
+                            ▼
+                  Grounding Validator
+                            ▼
+                     JSON Response
+```
 
-Every architectural decision was driven by measuring **Recall@10** against evaluation traces. This metrics-first approach allowed for a major pivot when hardware constraints (Render's 512MB RAM) threatened stability, resulting in a final system that is both accurate (**Mean Recall@10: 0.716**) and extremely stable.
+---
 
-### The Problem-Solution Matrix
-| Bottleneck Identified | Engineering Solution | Impact |
-|-----------------------|----------------------|--------|
-| **Memory Exhaustion** (512MB limit) | **BM25 Lite Engine** (Removed ONNX/FAISS) | RAM usage dropped from 600MB+ to ~200MB |
-| **Embedding Domain Shift** | Manual **Domain-Specific Enrichment** | Improved precision on opaque test names (SVAR, OPQ, DSI) |
-| **Environment Build Errors** | Python 3.11.9 Pinning + Pre-built Wheels | Bypassed Rust/Cargo compilation failures on Render |
-| **Trace-Agent Divergence** | LLM-powered **Smart Evaluator** | Accurate multi-turn conversation grading (3-8 turns) |
+# Philosophy
 
-## 2. Hardware-Aware Retrieval (The BM25 Lite Engine)
-Traditional RAG setups often default to vector embeddings (FAISS/Chroma). However, for a specialized catalog of 377 items, local embedding models (like `all-MiniLM-L6-v2`) proved too heavy for the 512MB RAM target.
+The LLM should **not** decide what to do.
 
-1. **Lite Engine Strategy:** I replaced the entire ML-based retrieval layer with an optimized **BM25 keyword engine**. By removing the ONNX runtime and shared libraries, I cleared over 400MB of RAM while maintaining comparable search quality.
-2. **Domain Enrichment:** To solve the lack of "semantic" understanding in BM25, I manually enriched catalog items with industry keywords. For example, "OPQ32r" was enriched with "senior leadership, executive, benchmark," ensuring it surfaces for high-level management queries.
-3. **Weighted Keyword Boosting:** Implemented a `KEYWORD_BOOST_MAP` that applies a 1.5x multiplier to the BM25 scores of specific assessment fragments when clear intent (e.g., "sales", "rust", "contact center") is detected in the query.
+The LLM should only generate natural language and extract information.
 
-## 3. Agentic Logic & Behavioral Guardrails
-Powered by **Llama 3.3 70B (Groq)**, the agent's logic is tightly constrained by a system prompt designed to pass strict behavioral probes:
-- **Clarification Loop:** The system analyzes initial queries. If vague, it asks exactly one clarifying question about Level, Role, or Experience.
-- **Groundedness Filter:** A backend validation layer ensures the agent only recommends assessments that physically exist in the source catalog, effectively eliminating hallucinations.
-- **Out-of-Scope Rejection:** Explicit prompt triggers ensure the agent refuses to answer legal, medical, or compliance questions (e.g., HIPAA requirements), returning an empty `[]` array for recommendations.
+Everything else is deterministic.
 
-## 4. Evaluation Rigor: The "Smart Evaluator"
-Replaying static traces verbatim is brittle because a dynamic LLM will ask different questions than a historical agent. To accurately measure the **Mean Recall@10 of 0.716**, I used a custom **Smart Evaluator**:
-- **Persona Roleplay:** A secondary LLM (the "User") acts as the hiring manager, responding to the agent's dynamic questions based on extracted facts from the original traces.
-- **Robustness Testing:** This process verified that the agent stays on track over 3-8 turns and successfully incorporates mid-conversation feedback (e.g., "Add a cognitive test" or "Remove OPQ").
+---
 
-## 5. Deployment & Stability
-Built for production readiness on the Render Free Tier:
-- **Python 3.11.9 Pinning**: To avoid build-time errors caused by Rust compilation (common with Pydantic-core in newer Python versions), the environment is pinned to ensure pre-built binary wheels are used.
-- **Data Resiliency**: The system features byte-level decoding for the SHL catalog and local disk caching to ensure 100% startup reliability regardless of network availability.
+# Components
 
-## 6. Reflection & Trade-offs
-I actively chose a **Stateless API** over a stateful framework. This simplifies horizontal scaling, makes isolated testing trivial, and results in a significantly more robust service. By prioritizing **BM25 + Manual Enrichment** over "fancy" but memory-heavy vector embeddings, I achieved a "Production-Correct" solution that is stable, fast, and highly accurate.
+## 1. Conversation Analyzer
+
+Implemented using an LLM.
+
+### Responsibility
+
+Convert the raw message history into structured state. LLMs are excellent at this information extraction task.
+
+Input
+
+```json
+{
+    "messages":[
+        ...
+    ]
+}
+```
+
+Output
+
+```json
+{
+    "intent": "recommend",
+    "role": "Backend Engineer",
+    "seniority": "Mid",
+    "skills": ["Python", "SQL"],
+    "constraints": {
+        "duration_less_than_mins": 30,
+        "online_only": true,
+        "adaptive": true
+    },
+    "required_traits": [],
+    "technical_required": true,
+    "personality_required": true,
+    "comparison_targets": [],
+    "clarification_history": [],
+    "conversation_complete": false,
+    "missing_fields": []
+}
+```
+
+The analyzer reconstructs the conversation because the API is stateless.
+
+It never recommends assessments.
+
+It only extracts information to build the structured state. Notice that it extracts constraints directly instead of burying them inside history, and clearly specifies the `intent` (e.g., `recommend`, `compare`, `refuse`, etc.).
+
+---
+
+## 2. Agent Controller
+
+Implemented entirely in Python.
+
+No LLM. 100% deterministic.
+
+### Responsibility
+
+Decide which workflow to execute based on the structured state provided by the Conversation Analyzer. (Renamed from "Planner" to avoid confusion with orchestration frameworks like LangGraph, AutoGen, CrewAI).
+
+Decision tree
+
+```text
+Off-topic?
+↓
+REFUSE
+--------------------
+Comparison request? (intent == "compare")
+↓
+COMPARE
+--------------------
+Enough information? (missing_fields empty)
+↓
+RECOMMEND
+--------------------
+Otherwise
+↓
+SLOT FILLING
+```
+
+The controller never generates language. It only routes requests deterministically.
+
+---
+
+## 3. Slot Filling Agent
+
+Goal
+
+Ask exactly one high-value question to fill missing slots (e.g., Role, Level, Industry).
+
+Example
+
+User
+```text
+Need an assessment.
+```
+
+Missing
+```text
+Role
+```
+
+Response
+```text
+What role are you hiring for?
+```
+
+NOT
+```text
+Experience?
+Industry?
+Location?
+Company size?
+```
+
+Stay below the assignment's turn limit. This acts as a classic NLP slot filling mechanism rather than a generic "clarification" agent.
+
+---
+
+## 4. Centralized Components
+
+### Prompt Builder
+
+Prompts are centralized in a single `PromptBuilder` component. 
+
+```text
+PromptBuilder
+↓
+recommend()
+↓
+compare()
+↓
+clarify()
+```
+
+Individual agents do not build their own prompts. This makes the system highly maintainable.
+
+### Response Formatter
+
+Converts the raw LLM output into the final response schema.
+This prevents prompt tweaks from breaking the API integration.
+
+```text
+LLM
+↓
+Formatter
+↓
+Validator
+↓
+JSON
+```
+
+---
+
+## 5. Recommendation Agent
+
+Pipeline
+
+```text
+Recommendation Agent
+↓
+Retriever
+↓
+Ranker
+↓
+Prompt Builder
+↓
+LLM
+↓
+Structured Response
+```
+
+Responsibilities
+- Explains recommendations.
+- Recommends only retrieved assessments.
+- The retrieval logic (Retriever, Ranker) is entirely decoupled from the LLM.
+
+---
+
+## 6. Comparison Agent
+
+Pipeline
+
+```text
+Assessment A & Assessment B
+↓
+Retriever
+↓
+Ranker
+↓
+Prompt Builder
+↓
+LLM
+↓
+Structured Response
+```
+
+Never compare from model memory. Always use retrieved catalog context.
+
+---
+
+## 7. Refusal Agent
+
+Handles
+- Prompt injection
+- Hiring advice
+- Legal questions
+- Medical questions
+- Politics
+- Out-of-domain requests
+
+Example
+
+```text
+Ignore previous instructions.
+```
+
+↓
+
+Refuse.
+
+---
+
+## 8. Dual Validators
+
+Runs before every response. Split into two clear responsibilities:
+
+### Schema Validator
+- Ensures valid JSON structure according to API requirements.
+- Max recommendations <= 10.
+- No duplicate recommendations.
+
+### Grounding Validator
+- Ensures recommended assessment physically exists in the catalog.
+- Ensures the SHL URL exists.
+- Never allows hallucinated assessments through.
+
+If validation fails → repair → return.
+
+---
+
+# State Object
+
+Everything downstream receives one object.
+
+```python
+ConversationState
+
+intent
+role
+seniority
+skills
+constraints
+required_traits
+technical_required
+personality_required
+comparison_targets
+clarification_history
+conversation_complete
+missing_fields
+history
+```
+
+No component should inspect raw messages directly. Everything operates on the structured state. This allows for trivial refinement (e.g., User says "Actually make it senior", only `seniority` changes, nothing else).
+
+---
+
+# Why this architecture?
+
+This provides a very clean split of responsibilities resembling a professional software-engineered backend rather than a simple RAG wrapper:
+- **LLM → Understand**: Analyzer understands the conversation and extracts state/constraints.
+- **Python → Decide**: Agent Controller makes deterministic decisions.
+- **Retrieval Pipeline**: Retriever and Ranker find relevant evidence independently.
+- **LLM → Explain**: Explains the evidence naturally based on centralized Prompts.
+- **Formatter & Validators → Guarantee Correctness**: Ensures the output is valid and grounded.
+
+This architecture explicitly prepares for robust **evaluation** (Recall@10, clarification success, refusal accuracy, and latency metrics) by isolating each step of the pipeline.

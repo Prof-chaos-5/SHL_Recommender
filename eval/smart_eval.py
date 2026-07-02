@@ -2,7 +2,7 @@
 Smart Evaluator for SHL Assessment Recommender.
 
 Instead of replaying trace messages verbatim, this evaluator uses
-Groq Llama to simulate a realistic user who:
+an LLM to simulate a realistic user who:
   - Knows ALL facts from the full trace conversation
   - Responds naturally to whatever the agent actually says
   - Answers agent questions truthfully from the persona
@@ -11,8 +11,11 @@ Groq Llama to simulate a realistic user who:
 
 Usage:
     python smart_eval.py
+    python smart_eval.py --all
+    python smart_eval.py --traces trace_1.md trace_2.json
 """
 
+import argparse
 import json
 import os
 import re
@@ -32,17 +35,42 @@ from metrics import mean_recall_at_k, recall_at_k
 # CONFIG
 # ============================================================================
 
+# Toggle to run all traces in the TRACES_PATH, or only a specific array of traces
+RUN_ALL_TRACES = True
+SPECIFIC_TRACES = ["C1.md", "C10.md"
+    # List specific trace names here (you can include or omit .md/.json extension)
+    # "trace_01",
+    # "trace_02.md",
+]
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 TRACES_PATH = BASE_DIR / "data" / "traces"
 RESULTS_PATH = BASE_DIR / "eval" / "smart_results.json"
 API_URL = "http://localhost:8000/chat"
 
-GROQ_MODEL = "openai/gpt-oss-120b"
+GROQ_MODEL = "qwen/qwen3-32b"
 MAX_TURNS = 8
 REQUEST_DELAY = 2       # seconds between agent calls
-GROQ_DELAY = 0.5        # seconds between Groq calls
+GROQ_DELAY = 4          # seconds between Groq calls
 
-groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+GROQ_KEYS = [
+    os.getenv("GROQ_API_KEY_1"),
+    os.getenv("GROQ_API_KEY_2"),
+    os.getenv("GROQ_API_KEY_3"),
+    os.getenv("GROQ_API_KEY"),
+]
+GROQ_KEYS = [k for k in GROQ_KEYS if k]
+if not GROQ_KEYS:
+    raise ValueError("No Groq API keys found in environment variables")
+
+GROQ_CLIENTS = [Groq(api_key=key) for key in GROQ_KEYS]
+_client_index = 0
+
+def _next_client() -> Groq:
+    global _client_index
+    client = GROQ_CLIENTS[_client_index]
+    _client_index = (_client_index + 1) % len(GROQ_CLIENTS)
+    return client
 
 
 # ============================================================================
@@ -87,25 +115,12 @@ def extract_last_table_names(text: str) -> list[str]:
 
 # ============================================================================
 # PERSONA EXTRACTOR
-# Builds a structured persona from ALL turns in the trace —
-# not just the first message. This gives the simulated user
-# full context so it can answer agent questions naturally.
 # ============================================================================
 
 def extract_persona_from_trace(content: str) -> str:
     """
     Build a structured persona from the full trace conversation.
-
-    Reads ALL user + agent turns to extract:
-    - What role is being hired for
-    - What facts the user revealed across all turns
-    - What the agent clarified and user confirmed
-
-    This gives the simulated user full context so it can answer
-    agent questions naturally, not just replay scripted messages.
     """
-
-    # 1. Try explicit ## Persona or ## Facts section first
     persona_match = re.search(
         r"## (?:Persona|Facts|Context|Background)\s*(.+?)(?=\n## |\Z)",
         content,
@@ -114,7 +129,6 @@ def extract_persona_from_trace(content: str) -> str:
     if persona_match:
         return persona_match.group(1).strip()
 
-    # 2. Extract ALL turns (user + agent) to build context
     turns = []
     turn_blocks = re.split(r"(?=### Turn \d+)", content)
 
@@ -139,9 +153,7 @@ def extract_persona_from_trace(content: str) -> str:
 
         if agent_match:
             agent_msg = agent_match.group(1)
-            # Strip markdown tables
             agent_msg = re.sub(r"\|.+\|", "", agent_msg)
-            # Strip metadata lines like _No recommendations_
             agent_msg = re.sub(r"_.*?_", "", agent_msg)
             agent_msg = agent_msg.strip()
             if agent_msg:
@@ -149,10 +161,6 @@ def extract_persona_from_trace(content: str) -> str:
 
     if not turns:
         return "No persona available. Answer based on conversation context."
-
-    # 3. Build structured persona
-    # User messages = facts the hiring manager revealed
-    # Agent Q + User A pairs = key clarifications already made
 
     user_facts = []
     qa_pairs = []
@@ -174,7 +182,6 @@ def extract_persona_from_trace(content: str) -> str:
                         "answer": next_msg,
                     })
 
-    # Build persona text
     persona_parts = [
         "You are a hiring manager or recruiter with the following known facts:",
         "",
@@ -224,18 +231,21 @@ def load_trace(path: Path) -> dict:
     expected = extract_last_table_names(content)
     persona = extract_persona_from_trace(content)
 
-    # Get first user message to kick off the conversation
-    first_user = re.search(
-        r"### Turn 1.*?\*\*User\*\*\s*>\s*(.+?)(?=\*\*Agent\*\*|\n###)",
+    user_turns = []
+    for m in re.finditer(
+        r"\*\*User\*\*\s*>\s*(.+?)(?=\*\*Agent\*\*|\n###|\Z)",
         content,
         re.DOTALL,
-    )
-    opening_message = first_user.group(1).strip() if first_user else ""
+    ):
+        user_turns.append(m.group(1).strip())
+
+    opening_message = user_turns[0] if user_turns else ""
 
     return {
         "id": trace_id,
         "persona": persona,
         "opening_message": opening_message,
+        "user_turns": user_turns,
         "expected_assessments": expected,
     }
 
@@ -244,18 +254,45 @@ def load_trace(path: Path) -> dict:
 # SIMULATED USER (Groq)
 # ============================================================================
 
-USER_SYSTEM_PROMPT = """You are simulating a hiring manager in a conversation with an AI assessment recommender.
+USER_SYSTEM_PROMPT = """You are simulating a hiring manager talking to an AI assessment recommender.
 
 Your persona and known facts:
 {persona}
 
-Current conversation so far:
+Conversation so far:
 {history}
 
 The agent just said:
 {agent_message}
 
-Your response (1-2 sentences, natural and conversational):"""
+Rules for your reply:
+- Write 1-2 SHORT sentences max. Think terse executive, not chatty.
+- ONLY use facts from your persona above. NEVER invent new requirements, constraints, report formats, or preferences.
+- NEVER ask the agent a question — you are the one being asked.
+- If the agent asks you something not covered by your facts, say exactly: "I have no preference on that."
+- If the agent's recommendations look reasonable and you have no more facts to add, confirm briefly (e.g. "Sounds good.", "That works.", "Confirmed.").
+- Match the tone of these examples:
+  "Backend-leaning. Day-one priorities are Core Java and Spring; SQL is constant."
+  "English."
+  "We're industrial. The 8.0 bundle is the right fit. Confirmed."
+  "Good. Can you also add a situational judgement element?"
+
+Your response:"""
+
+
+def _clean_for_prompt(text: str) -> str:
+    lines = []
+    for line in text.splitlines():
+        trimmed = line.strip()
+        if trimmed.startswith("|") and trimmed.endswith("|"):
+            continue
+        if trimmed.startswith("_") and trimmed.endswith("_"):
+            continue
+        lines.append(line)
+    text = "\n".join(lines)
+    text = re.sub(r"https?://\S+", "", text)
+    text = re.sub(r"\n\s*\n+", "\n\n", text)
+    return text.strip()
 
 
 def simulate_user_response(
@@ -263,44 +300,89 @@ def simulate_user_response(
     history: list[dict],
     agent_message: str,
 ) -> str:
-    """
-    Use Groq to generate a realistic user response
-    given the full persona and current agent message.
-    """
+    clean_history = []
+    for m in history[-6:]:
+        clean_history.append({
+            "role": m["role"],
+            "content": _clean_for_prompt(m["content"])
+        })
+
     history_text = "\n".join(
         f"{m['role'].upper()}: {m['content']}"
-        for m in history[-6:]
-    ) if history else "(conversation just started)"
+        for m in clean_history
+    ) if clean_history else "(conversation just started)"
+
+    clean_agent_message = _clean_for_prompt(agent_message)
 
     prompt = USER_SYSTEM_PROMPT.format(
         persona=persona,
         history=history_text,
-        agent_message=agent_message,
+        agent_message=clean_agent_message,
     )
 
-    try:
-        response = groq_client.chat.completions.create(
-            model=GROQ_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=150,
-            temperature=0.3,
-        )
-        return response.choices[0].message.content.strip()
+    MAX_ATTEMPTS = len(GROQ_CLIENTS) * 2
+    for attempt in range(MAX_ATTEMPTS):
+        client = _next_client()
+        try:
+            response = client.chat.completions.create(
+                model=GROQ_MODEL,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=600,
+                temperature=0.3,
+            )
+            content = (response.choices[0].message.content or "").strip()
+            content = re.sub(r"<think>.*?(?:</think>|$)", "", content, flags=re.DOTALL).strip()
+            
+            if not content:
+                return "Please go ahead with the recommendations."
+            return content
 
-    except Exception as e:
-        print(f"[groq] Error: {e}")
-        return "Please go ahead with the recommendations."
+        except Exception as e:
+            error_text = str(e).lower()
+            if any(x in error_text for x in ["rate limit", "429", "too many requests"]):
+                wait_time = min(2 ** attempt, 3)
+                match = re.search(r"try again in (?:(\d+)m)?([\d.]+)s", error_text)
+                if match:
+                    mins = int(match.group(1)) if match.group(1) else 0
+                    wait_time = int(mins * 60 + float(match.group(2))) + 1
+                if wait_time > 3:
+                    print(f"[groq] Key rate limited, rotating to next key...")
+                    continue
+                time.sleep(wait_time)
+                continue
+
+            if any(x in error_text for x in ["connection", "timeout", "503"]):
+                time.sleep(1)
+                continue
+
+            print(f"[groq] Error: {e}")
+            break
+
+    return "Please go ahead with the recommendations."
 
 
 def is_conversation_ending(user_response: str) -> bool:
-    """Detect if simulated user is wrapping up."""
-    endings = [
-        "thank", "perfect", "great", "that works", "exactly",
+    lower = user_response.lower()
+
+    closing_keywords = [
+        "thank", "perfect", "that works", "exactly",
         "looks good", "sounds good", "that's what", "appreciate",
         "no more", "that's all", "we're done", "all set",
+        "let's proceed", "let's go with", "confirmed",
+        "that's great", "we'll use",
     ]
-    lower = user_response.lower()
-    return any(e in lower for e in endings)
+    if not any(kw in lower for kw in closing_keywords):
+        return False
+
+    continuation_signals = [
+        "?", "can you", "could you", "also add", "also include",
+        "replace", "swap", "remove", "instead", "what about",
+        "how about", "one more", "but ", "however", "actually",
+    ]
+    if any(sig in lower for sig in continuation_signals):
+        return False
+
+    return True
 
 
 # ============================================================================
@@ -308,7 +390,6 @@ def is_conversation_ending(user_response: str) -> bool:
 # ============================================================================
 
 def call_agent(messages: list[dict], retries: int = 3) -> dict | None:
-    """Call the FastAPI agent with retry + backoff."""
     for attempt in range(retries):
         try:
             resp = httpx.post(
@@ -335,11 +416,9 @@ def call_agent(messages: list[dict], retries: int = 3) -> dict | None:
 
 
 def extract_recommendations(data: dict) -> list[str]:
-    """Extract recommendation names from agent response."""
     if data.get("recommendations"):
         return [r["name"] for r in data["recommendations"] if "name" in r]
 
-    # Fallback: parse markdown table from reply text
     if data.get("reply"):
         names = []
         for line in data["reply"].splitlines():
@@ -361,19 +440,11 @@ def extract_recommendations(data: dict) -> list[str]:
 # ============================================================================
 
 def run_trace(trace: dict) -> dict:
-    """
-    Run a full simulated conversation for one trace.
-
-    Flow:
-    1. Send opening message to agent
-    2. Agent replies
-    3. Groq simulates user response based on full persona + agent reply
-    4. Repeat until end_of_conversation or turn cap
-    """
     trace_id = trace.get("id", "unknown")
     persona = trace.get("persona", "")
     opening = trace.get("opening_message", "")
     expected = trace.get("expected_assessments", [])
+    canonical_user_turns = trace.get("user_turns", [])
 
     print(f"\n{'='*70}")
     print(f"Trace:    {trace_id}")
@@ -400,12 +471,10 @@ def run_trace(trace: dict) -> dict:
     while turn < MAX_TURNS:
         turn += 1
 
-        # Add user message
         messages.append({"role": "user", "content": current_user_message})
         conversation_log.append({"role": "user", "content": current_user_message})
         print(f"\n[T{turn}] USER:  {current_user_message}")
 
-        # Call agent
         time.sleep(REQUEST_DELAY)
         agent_data = call_agent(messages)
 
@@ -416,7 +485,6 @@ def run_trace(trace: dict) -> dict:
         agent_reply = agent_data.get("reply", "")
         end_flag = agent_data.get("end_of_conversation", False)
 
-        # Track latest non-empty recommendations
         recs = extract_recommendations(agent_data)
         if recs:
             final_recommendations = recs
@@ -432,21 +500,27 @@ def run_trace(trace: dict) -> dict:
             print(f"[eval] end_of_conversation=true at turn {turn}")
             break
 
-        # Leave room for closing turn
         if turn >= MAX_TURNS - 1:
             print(f"[eval] Turn cap reached")
             break
 
-        # Simulate next user response
         time.sleep(GROQ_DELAY)
-        current_user_message = simulate_user_response(
+        simulated_response = simulate_user_response(
             persona=persona,
             history=messages,
             agent_message=agent_reply,
         )
+
+        canonical_turn = ""
+        if turn < len(canonical_user_turns):
+            canonical_turn = canonical_user_turns[turn].strip()
+
+        if canonical_turn:
+            current_user_message = canonical_turn
+        else:
+            current_user_message = simulated_response
         print(f"[T{turn}] SIMULATED: {current_user_message}")
 
-        # If user is closing and we have recommendations, wrap up
         if is_conversation_ending(current_user_message) and final_recommendations:
             messages.append({"role": "user", "content": current_user_message})
             conversation_log.append({"role": "user", "content": current_user_message})
@@ -478,6 +552,22 @@ def run_trace(trace: dict) -> dict:
 # ============================================================================
 
 def main():
+    # Setup Argument Parser to allow overriding the config via CLI
+    parser = argparse.ArgumentParser(description="Smart Evaluator")
+    parser.add_argument("--all", action="store_true", help="Run all traces in the traces folder")
+    parser.add_argument("--traces", nargs="+", help="Run specific traces (e.g. --traces trace1.md trace2.json)")
+    args = parser.parse_args()
+
+    # Determine execution mode from args or config
+    run_all = RUN_ALL_TRACES
+    specific_traces = SPECIFIC_TRACES
+
+    if args.all:
+        run_all = True
+    if args.traces:
+        run_all = False
+        specific_traces = args.traces
+
     print(f"[eval] Smart evaluator — {GROQ_MODEL}")
     print(f"[eval] Traces: {TRACES_PATH}")
     print(f"[eval] Agent:  {API_URL}\n")
@@ -486,11 +576,32 @@ def main():
         print("[error] Traces directory not found")
         return
 
-    trace_files = sorted(
-        f for f in TRACES_PATH.iterdir()
-        if f.suffix in (".json", ".md")
-    )
-    print(f"[eval] Found {len(trace_files)} traces\n")
+    # Select the files to process
+    if run_all:
+        print("[eval] Mode: RUN ALL TRACES")
+        trace_files = sorted(
+            f for f in TRACES_PATH.iterdir()
+            if f.suffix in (".json", ".md")
+        )
+    else:
+        print(f"[eval] Mode: SPECIFIC TRACES ({len(specific_traces)} requested)")
+        trace_files = []
+        for name in specific_traces:
+            path = TRACES_PATH / name
+            # Handle cases where the user included or didn't include file extensions
+            if path.is_file():
+                trace_files.append(path)
+            elif (TRACES_PATH / f"{name}.md").is_file():
+                trace_files.append(TRACES_PATH / f"{name}.md")
+            elif (TRACES_PATH / f"{name}.json").is_file():
+                trace_files.append(TRACES_PATH / f"{name}.json")
+            else:
+                print(f"[warn] Trace not found: {name}")
+
+        # Deduplicate files while preserving order
+        trace_files = list(dict.fromkeys(trace_files))
+
+    print(f"[eval] Found {len(trace_files)} traces to run\n")
 
     results = []
 
@@ -498,7 +609,6 @@ def main():
         try:
             trace = load_trace(path)
 
-            # Sanity check before running
             if not trace.get("opening_message"):
                 print(f"[warn] {path.name}: no opening message, skipping")
                 continue
@@ -513,7 +623,6 @@ def main():
             )
             results.append(result)
 
-            # Per-trace summary
             expected_set = set(result["expected"])
             recommended_set = set(result["recommended"])
             matches = expected_set & recommended_set
@@ -536,7 +645,7 @@ def main():
         print("[eval] No results to report")
         return
 
-    mean = mean_recall_at_k(results)
+    mean = sum(r["recall@10"] for r in results) / len(results)
     print(f"\n{'#'*70}")
     print(f"Mean Recall@10: {mean:.4f} across {len(results)} traces")
     print(f"{'#'*70}")

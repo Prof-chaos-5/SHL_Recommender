@@ -26,6 +26,18 @@ app.add_middleware(
 )
 
 
+@app.get("/")
+def root():
+    return {
+        "message": "SHL Assessment Recommender API is Live",
+        "endpoints": {
+            "health": "/health",
+            "recommend": "/chat",
+            "documentation": "/docs"
+        }
+    }
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
