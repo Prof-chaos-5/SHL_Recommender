@@ -113,10 +113,20 @@ def apply(state, candidates: list[dict]) -> list[dict]:
     forced = []
     for name in required_item_names(state):
         item = get_item_by_name(name)
-        if item and item.get("entity_id") not in seen:
+        if not item:
+            continue
+        eid = item.get("entity_id")
+        if eid in seen:
+            for c in candidates:
+                if c.get("entity_id") == eid:
+                    c["_score"] = max(c.get("_score", 0), 998.0)
+                    if c.get("_retrieval") != "explicit_name":
+                        c["_retrieval"] = "business_rule"
+                    break
+        else:
             item = item.copy()
             item["_score"] = 998.0
             item["_retrieval"] = "business_rule"
             forced.append(item)
-            seen.add(item.get("entity_id"))
+            seen.add(eid)
     return forced + candidates

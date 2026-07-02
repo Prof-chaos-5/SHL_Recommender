@@ -138,16 +138,23 @@ def _pin_prior(prior_ids: list[str], candidates: list[dict], excluded_names: set
     excluded_lower = {n.strip().lower() for n in (excluded_names or set())}
     seen = {c.get("entity_id") for c in candidates}
     pinned = []
-    for eid in prior_ids:
-        if eid in seen:
+    for pid in prior_ids:
+        item = get_item_by_id(pid)
+        if not item or (item.get("name") or "").lower() in excluded_lower:
             continue
-        item = get_item_by_id(eid)
-        if item and (item.get("name") or "").lower() not in excluded_lower:
+        if pid in seen:
+            for c in candidates:
+                if c.get("entity_id") == pid:
+                    c["_score"] = max(c.get("_score", 0), 998.0)
+                    if c.get("_retrieval") not in ("business_rule", "explicit_name"):
+                        c["_retrieval"] = "previous_turn"
+                    break
+        else:
             item = item.copy()
             item["_score"] = 998.0
             item["_retrieval"] = "previous_turn"
             pinned.append(item)
-            seen.add(item.get("entity_id"))
+            seen.add(pid)
     return pinned + candidates    
 
 
@@ -171,7 +178,16 @@ def _pin_explicit_names(names: list[str], candidates: list[dict]) -> list[dict]:
     pinned = []
     for name in names:
         item = get_item_by_name(name)
-        if item and item.get("entity_id") not in seen:
+        if not item:
+            continue
+        eid = item.get("entity_id")
+        if eid in seen:
+            for c in candidates:
+                if c.get("entity_id") == eid:
+                    c["_score"] = max(c.get("_score", 0), 999.5)
+                    c["_retrieval"] = "explicit_name"
+                    break
+        else:
             item = item.copy()
             item["_score"] = 999.5  # outranks business_rule/previous_turn (998) --
                                       # an item the user explicitly named this
@@ -179,7 +195,7 @@ def _pin_explicit_names(names: list[str], candidates: list[dict]) -> list[dict]:
                                       # a generic rule-triggered one.
             item["_retrieval"] = "explicit_name"
             pinned.append(item)
-            seen.add(item.get("entity_id"))
+            seen.add(eid)
     return pinned + candidates
 
 def _get_candidates(state, messages: list[Message]) -> list[dict]:

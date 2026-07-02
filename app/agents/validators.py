@@ -3,7 +3,7 @@ from app.retrieval import get_test_type
 
 VALID_TEST_TYPES = {"K", "A", "P", "B", "C", "D", "S", "E"}
 
-FORCED_SOURCES = {"business_rule", "always_include", "previous_turn"}
+FORCED_SOURCES = {"business_rule", "always_include", "previous_turn", "explicit_name"}
 
 
 def ground_and_repair(
