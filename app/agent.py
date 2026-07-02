@@ -336,10 +336,20 @@ def run_agent(messages: list[Message]) -> ChatResponse:
 
     reply = data.get("reply", "Here are some assessments that fit.")
     if decision == "RECOMMEND":
-        reply = _stamp_recommendation_ids(reply, recommendations)
+        reply = data.get("reply", "Here are some assessments that fit.")
+    from app.models import Recommendation
+
+    public_recommendations = [
+        Recommendation(
+            name=r.name,
+            url=r.url,
+            test_type=r.test_type,
+        )
+        for r in recommendations
+    ]
 
     return ChatResponse(
         reply=reply,
-        recommendations=recommendations,
+        recommendations=public_recommendations,
         end_of_conversation=False,
-    )
+)

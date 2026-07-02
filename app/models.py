@@ -1,5 +1,6 @@
 from pydantic import BaseModel, field_validator
 from typing import Optional, Literal
+from pydantic import BaseModel, Field
 
 
 # ============================================================================
@@ -15,8 +16,8 @@ class Recommendation(BaseModel):
     name: str
     url: str
     test_type: str  # K, A, P, B, C, D, S, E
-    entity_id: Optional[str] = None
-
+    entity_id: Optional[str] = Field(default=None, exclude=True)
+    
 class ChatRequest(BaseModel):
     messages: list[Message]
 
