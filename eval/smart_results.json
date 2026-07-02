@@ -1,6 +1,6 @@
 {
   "model": "qwen/qwen3-32b",
-  "mean_recall@10": 0.6771428571428572,
+  "mean_recall@10": 0.6002380952380952,
   "traces": [
     {
       "trace_id": "C1",
@@ -10,9 +10,11 @@
         "OPQ Leadership Report"
       ],
       "recommended": [
+        "Enterprise Leadership Report 2.0",
+        "Enterprise Leadership Report 1.0",
         "OPQ Leadership Report",
-        "OPQ Universal Competency Report 2.0",
-        "Occupational Personality Questionnaire OPQ32r"
+        "Executive Scenarios",
+        "OPQ Universal Competency Report 2.0"
       ],
       "conversation": [
         {
@@ -29,7 +31,7 @@
         },
         {
           "role": "assistant",
-          "content": "Based on your request, I recommend the following assessments for senior leadership positions:\u206c\u200d\u200b\u206f\u206c\u2064\u2060\u206f\u2060\u206d\u2064\u206e\u206f\u2060\u206d\u206e\u206e\u206f\u206c\u2064\u206e"
+          "content": "For senior leadership roles (CXOs, directors) we recommend a mix of leadership potential, managerial judgement, and competency reports.\u206c\u2064\u206e\u206f\u206c\u2064\u2060\u206f\u2060\u206d\u2064\u206e\u206f\u2060\u206d\u206e\u206e\u206f\u2064\u200d\u206d\u206e"
         },
         {
           "role": "user",
@@ -37,7 +39,7 @@
         },
         {
           "role": "assistant",
-          "content": "Recommended assessments for senior leadership positions: comparing candidates against a leadership benchmark.\u206c\u2064\u206e\u206f\u206c\u200d\u200b\u206f\u2064\u200d\u206d\u206c"
+          "content": "These assessments let you benchmark senior candidates against a proven leadership model and evaluate their managerial judgement and core competencies.\u2064\u200d\u206d\u206c\u206f\u2060\u206d\u206a\u206b\u206f\u206c\u2064\u206e\u206f\u206c\u2064\u2060\u206f\u2064\u200d\u206d\u206e"
         },
         {
           "role": "user",
@@ -45,11 +47,11 @@
         },
         {
           "role": "assistant",
-          "content": "Recommended assessments for senior leadership positions: comparing candidates against a leadership benchmark.\u206c\u2064\u206e\u206f\u2064\u200d\u206d\u206e\u206f\u206c\u200d\u200b"
+          "content": "Glad that works! Good luck with the hiring process."
         }
       ],
       "turns_used": 4,
-      "recall@10": 1.0
+      "recall@10": 0.6666666666666666
     },
     {
       "trace_id": "C10",
@@ -59,8 +61,7 @@
       ],
       "recommended": [
         "SHL Verify Interactive G+",
-        "Graduate Scenarios",
-        "Occupational Personality Questionnaire OPQ32r"
+        "Graduate Scenarios"
       ],
       "conversation": [
         {
@@ -69,7 +70,7 @@
         },
         {
           "role": "assistant",
-          "content": "Recommended assessments for the graduate management trainee scheme:\u2060\u206e\u206c\u200c\u206f\u206c\u200d\u200b\u206f\u206c\u2064\u200c"
+          "content": "For graduate management trainees, the Verify Interactive G+ (id=3971) provides a robust cognitive assessment, and Graduate Scenarios (id=741) offers the required situational\u2011judgement test. No personality assessments are present in the current catalog.\u2060\u206e\u206c\u200c\u206f\u206c\u2064\u200c"
         },
         {
           "role": "user",
@@ -77,7 +78,7 @@
         },
         {
           "role": "assistant",
-          "content": "Considering your request, I've replaced the OPQ32r with a shorter personality assessment.\u2060\u206e\u206c\u200c\u206f\u206c\u200d\u200b\u206f\u206c\u2064\u200c"
+          "content": "Considering your request, I've replaced the OPQ Universal Competency Report 2.0 with a shorter assessment.\u2060\u206e\u206c\u200c\u206f\u206c\u2064\u200c"
         },
         {
           "role": "user",
@@ -85,7 +86,7 @@
         },
         {
           "role": "assistant",
-          "content": "Recommended assessments for the graduate management trainee scheme: Verify G+ and Graduate Scenarios.\u2060\u206e\u206c\u200c\u206f\u206c\u2064\u200c\u206f\u206c\u200d\u200b"
+          "content": "Selected assessments for graduate management trainees: Verify G+ and Graduate Scenarios.\u2060\u206e\u206c\u200c\u206f\u206c\u2064\u200c"
         },
         {
           "role": "user",
@@ -152,8 +153,9 @@
       ],
       "recommended": [
         "Contact Center Call Simulation (New)",
-        "Customer Service Phone Simulation",
-        "Occupational Personality Questionnaire OPQ32r",
+        "Customer Service Phone Solution",
+        "Entry Level Customer Serv-Retail & Contact Center",
+        "SVAR - Spoken English (US) (New)",
         "English Comprehension (New)"
       ],
       "conversation": [
@@ -163,7 +165,7 @@
         },
         {
           "role": "assistant",
-          "content": "Based on your request, we recommend the following assessments for entry-level contact centre agents with a customer service focus.\u2060\u206e\u2060\u2060\u206f\u2060\u206e\u2060\u200c\u206f\u2060\u206e\u2060\u206a\u206f\u2064\u200d\u200c\u206b\u206f\u2064\u200c\u206d\u206e\u206f\u206c\u200d\u200b"
+          "content": "Based on your request, we recommend the following assessments for entry-level contact centre agents with a customer service focus.\u2060\u206e\u2060\u2060\u206f\u2060\u206e\u2060\u206e\u206f\u2064\u200d\u200c\u206b"
         },
         {
           "role": "user",
@@ -171,7 +173,7 @@
         },
         {
           "role": "assistant",
-          "content": "Recommended assessments for entry-level contact centre agents with a customer service focus and English proficiency.\u2064\u200c\u206d\u200b\u206f\u2060\u206e\u2060\u2060\u206f\u2064\u200d\u200c\u206e\u206f\u2060\u206e\u2060\u200c\u206f\u2064\u200d\u200c\u206b\u206f\u2064\u200d\u200c\u206c\u206f\u2060\u206e\u206d\u206c\u206f\u2060\u206e\u206d\u206b\u206f\u2064\u200c\u206d\u206e\u206f\u206c\u200d\u200b"
+          "content": "Recommended assessments for entry-level contact centre agents with a customer service focus and English proficiency.\u2064\u200c\u206d\u200b\u206f\u2060\u206e\u2060\u2060\u206f\u2060\u206e\u2060\u206e\u206f\u2064\u200d\u200c\u206b"
         },
         {
           "role": "user",
@@ -179,7 +181,7 @@
         },
         {
           "role": "assistant",
-          "content": "Recommended assessments for entry-level contact centre agents with a customer service focus and English proficiency in US.\u2060\u206e\u206d\u206c\u206f\u2060\u206e\u2060\u2060\u206f\u2060\u206e\u2060\u200c\u206f\u2064\u200d\u200c\u206e\u206f\u2060\u206e\u2060\u206a\u206f\u2064\u200c\u206d\u206e\u206f\u206c\u200d\u200b\u206f\u2064\u200c\u206d\u200b"
+          "content": "Recommended assessments for entry-level contact centre agents with a customer service focus and US English proficiency.\u2060\u206e\u206d\u206b\u206f\u2060\u206e\u206d\u206c\u206f\u2060\u206e\u2060\u2060\u206f\u2060\u206e\u2060\u206e\u206f\u2064\u200d\u200c\u206e\u206f\u2064\u200c\u206d\u200b"
         },
         {
           "role": "user",
@@ -187,7 +189,7 @@
         },
         {
           "role": "assistant",
-          "content": "The Contact Center Call Simulation (New) and the Customer Service Phone Simulation are similar assessments. Both measure the ability to handle customer concerns over a call, but the Contact Center Call Simulation (New) is a more recent version with updated content."
+          "content": "Yes, they are distinct simulations. The Contact Center Call Simulation (id 4189) is a 15\u2011minute remote test that measures an agent\u2019s ability to resolve customer concerns on a call by consulting standard process documents, making it ideal when you need to assess procedural adherence under time pressure. The Customer Service Phone Simulation (id 3933) is a slightly longer 20\u2011minute remote exercise aimed at entry\u2011level contact\u2011center roles, focusing on general phone\u2011based customer service skills, so it\u2019s useful when you want a broader view of call handling aptitude."
         },
         {
           "role": "user",
@@ -195,11 +197,11 @@
         },
         {
           "role": "assistant",
-          "content": "Confirmed\u2064\u200c\u206d\u206e\u206f\u2060\u206e\u2060\u2060\u206f\u206c\u200d\u200b\u206f\u2064\u200c\u206d\u200b"
+          "content": "Recommended assessments for entry-level contact centre agents with a customer service focus and US English proficiency: Contact Center Call Simulation (New), Customer Service Phone Solution, Entry Level Customer Serv-Retail & Contact Center, SVAR - Spoken English (US) (New).\u2064\u200c\u206d\u206e\u206f\u2060\u206e\u2060\u200c\u206f\u2060\u206e\u2060\u206e\u206f\u2060\u206e\u206d\u206c\u206f\u2064\u200c\u206d\u200b"
         }
       ],
       "turns_used": 5,
-      "recall@10": 0.5
+      "recall@10": 0.75
     },
     {
       "trace_id": "C4",
@@ -212,8 +214,7 @@
       ],
       "recommended": [
         "SHL Verify Interactive \u2013 Numerical Reasoning",
-        "Graduate Scenarios",
-        "Occupational Personality Questionnaire OPQ32r"
+        "Graduate Scenarios"
       ],
       "conversation": [
         {
@@ -222,7 +223,7 @@
         },
         {
           "role": "assistant",
-          "content": "Recommended assessments for graduate financial analysts:\u2060\u206e\u2064\u206b\u206f\u2060\u206e\u206e\u200d\u206f\u206c\u200d\u200b"
+          "content": "Recommended assessments for graduate financial analysts:\u2060\u206e\u206c\u200d\u206f\u2060\u206e\u206e\u200d"
         },
         {
           "role": "user",
@@ -230,7 +231,7 @@
         },
         {
           "role": "assistant",
-          "content": "Recommended assessments for graduate financial analysts with situational judgement element:\u2060\u206e\u206c\u200d\u206f\u2060\u206e\u206e\u200d\u206f\u2060\u206e\u200b\u200c\u206f\u206c\u200d\u200b"
+          "content": "Recommended assessments for graduate financial analysts with situational judgement element:\u2060\u206e\u206c\u200d\u206f\u2060\u206e\u206e\u200d\u206f\u206c\u2064\u200c"
         },
         {
           "role": "user",
@@ -238,7 +239,7 @@
         },
         {
           "role": "assistant",
-          "content": "Recommended assessments for graduate financial analysts with situational judgement element: Numerical Reasoning and Graduate Scenarios as first filter, followed by domain tests for shortlisted candidates.\u2060\u206e\u2064\u206b\u206f\u206c\u2064\u200c\u206f\u206c\u200d\u200b"
+          "content": "Recommended assessments for graduate financial analysts with situational judgement element: Numerical Reasoning and Graduate Scenarios as first filter, followed by domain tests for shortlisted candidates.\u2060\u206e\u2064\u206b\u206f\u206c\u2064\u200c"
         },
         {
           "role": "user",
@@ -250,7 +251,7 @@
         }
       ],
       "turns_used": 4,
-      "recall@10": 0.6
+      "recall@10": 0.4
     },
     {
       "trace_id": "C5",
@@ -263,9 +264,9 @@
       ],
       "recommended": [
         "Occupational Personality Questionnaire OPQ32r",
-        "OPQ MQ Sales Report",
         "Global Skills Assessment",
         "Global Skills Development Report",
+        "OPQ MQ Sales Report",
         "Retail Sales and Service Simulation"
       ],
       "conversation": [
@@ -283,7 +284,7 @@
         },
         {
           "role": "assistant",
-          "content": "The OPQ32r (id 720) is a comprehensive personality questionnaire that measures an individual\u2019s natural workplace behavioural style across 32 traits and is suitable for selection, development and team\u2011fit decisions for any role. The OPQ MQ Sales Report (id 754) uses the same underlying OPQ data but presents a sales\u2011focused graphical and narrative summary that highlights behaviours relevant to selling, making it ideal for identifying, coaching and developing sales talent. Use the OPQ32r when you need a broad personality profile; use the Sales Report when you need a quick, sales\u2011specific insight for role\u2011specific decisions."
+          "content": "The OPQ32r (id=720) is a comprehensive personality assessment that measures workplace behavioral style across various levels. The OPQ MQ Sales Report (id=754) is a specific report based on the OPQ32r, providing a graphical and narrative summary of an individual's natural style critical for sales success."
         },
         {
           "role": "user",
@@ -295,11 +296,11 @@
         },
         {
           "role": "user",
-          "content": "Confirmed. Keep OPQ for all, add MQ Sales Report where motivators are needed. Five-solution audit stack stands."
+          "content": "Confirmed."
         },
         {
           "role": "assistant",
-          "content": "Confirmed. OPQ will be used for all, and MQ Sales Report will be added where motivators are needed. The five-solution audit stack will be used for the Sales organization re-skilling and annual talent audit.\u206c\u200d\u200b\u206f\u206c\u206a\u2064\u206f\u2064\u2060\u200b\u200c\u206f\u2064\u2060\u200b\u200d\u206f\u206b\u206e\u206c"
+          "content": "Glad that works! Good luck with the hiring process."
         }
       ],
       "turns_used": 4,
@@ -322,7 +323,7 @@
         },
         {
           "role": "assistant",
-          "content": "Based on your requirements, we recommend the following assessments for plant operators at a chemical facility.\u206c\u200d\u200b\u206f\u2064\u200b\u206b\u206d\u206f\u2064\u200d\u206e\u2060"
+          "content": "Based on your requirements, we recommend the following assessments for plant operators at a chemical facility.\u206c\u200d\u200b\u206f\u2064\u200b\u206b\u206d\u206f\u2064\u200d\u206e\u2064"
         },
         {
           "role": "user",
@@ -330,7 +331,7 @@
         },
         {
           "role": "assistant",
-          "content": "The DSI (id\u202f731) is a brief 10\u2011minute pre\u2011screen that gauges basic dependability and safety attitudes for entry\u2011level positions, making it useful for high\u2011volume initial filtering. The Safety & Dependability Focus\u202f8.0 (id\u202f4293) is a longer 16\u2011minute, job\u2011focused assessment that measures a wider set of behaviors underlying safe performance across multiple levels, ideal for selecting plant operators where strict safety compliance is essential."
+          "content": "The DSI (id=731) is a short pre-screening tool for entry-level roles, focusing on dependability. The Safety & Dependability 8.0 (id=4293) is a more comprehensive assessment for various levels, including entry-level, measuring behaviors for safe performance in a work environment."
         },
         {
           "role": "user",
@@ -338,7 +339,7 @@
         },
         {
           "role": "assistant",
-          "content": "You've confirmed the Safety & Dependability Focus 8.0 (id=4293) for your plant operators.\u2064\u200d\u206e\u2060\u206f\u206c\u200d\u200b"
+          "content": "You've confirmed the Safety & Dependability 8.0 assessment (id=4293).\u2064\u200d\u206e\u2060\u206f\u206c\u200d\u200b"
         }
       ],
       "turns_used": 3,
@@ -354,10 +355,9 @@
         "Occupational Personality Questionnaire OPQ32r"
       ],
       "recommended": [
-        "Microsoft Word 365 - Essentials (New)",
-        "HIPAA (Security)",
         "Medical Terminology (New)",
-        "Occupational Personality Questionnaire OPQ32r"
+        "Microsoft Word 365 - Essentials (New)",
+        "HIPAA (Security)"
       ],
       "conversation": [
         {
@@ -366,7 +366,7 @@
         },
         {
           "role": "assistant",
-          "content": "Based on your requirements, we recommend the following assessments:\u2060\u2060\u200c\u206f\u2064\u200b\u206a\u206d\u206f\u206c\u200d\u200b\u206f\u2064\u200d\u200c\u200c"
+          "content": "Based on your requirements, we recommend the following assessments:\u2064\u200b\u206a\u206d\u206f\u2060\u2060\u200c\u206f\u2064\u200d\u200c\u200c"
         },
         {
           "role": "user",
@@ -374,7 +374,7 @@
         },
         {
           "role": "assistant",
-          "content": "Based on your requirements, we recommend the following assessments for bilingual healthcare admin staff in South Texas:\u2064\u200d\u200c\u200c\u206f\u2060\u2060\u200c\u206f\u2064\u200b\u206a\u206d\u206f\u206c\u200d\u200b"
+          "content": "Based on your requirements, we recommend the following assessments for bilingual healthcare admin staff in South Texas:\u2064\u200b\u206a\u206d\u206f\u2064\u200d\u200c\u200c\u206f\u2060\u2060\u200c"
         },
         {
           "role": "user",
@@ -402,7 +402,7 @@
         }
       ],
       "turns_used": 5,
-      "recall@10": 0.8
+      "recall@10": 0.6
     },
     {
       "trace_id": "C8",
@@ -469,11 +469,9 @@
       ],
       "recommended": [
         "Core Java (Entry Level) (New)",
-        "Spring (New)",
-        "Amazon Web Services (AWS) Development (New)",
+        "OPQ Leadership Report",
         "SHL Verify Interactive G+",
-        "Occupational Personality Questionnaire OPQ32r",
-        "OPQ Leadership Report"
+        "Occupational Personality Questionnaire OPQ32r"
       ],
       "conversation": [
         {
@@ -482,7 +480,7 @@
         },
         {
           "role": "assistant",
-          "content": "Based on the provided job description, we recommend the following assessments for a Senior Full-Stack Engineer:\u2064\u200b\u2060\u2064\u206f\u2064\u200c\u2064\u2060\u206f\u2064\u200b\u200d\u206d\u206f\u2060\u206c\u206d\u206e\u206f\u206c\u2064\u206e\u206f\u206c\u200d\u200b"
+          "content": "Based on the provided job description, we recommend the following assessments for a Senior Full-Stack Engineer:\u2064\u200b\u2060\u2064\u206f\u2064\u200c\u2064\u2060\u206f\u2064\u200b\u200d\u206d\u206f\u2064\u200b\u206a\u206e\u206f\u2060\u206c\u206d\u206e\u206f\u206c\u2064\u206e\u206f\u206c\u200d\u200b"
         },
         {
           "role": "user",
@@ -490,7 +488,7 @@
         },
         {
           "role": "assistant",
-          "content": "Based on the provided job description, we recommend the following assessments for a Senior Full-Stack Engineer:\u2064\u200b\u2060\u2064\u206f\u2064\u200c\u2064\u2060\u206f\u2064\u200b\u200d\u206d\u206f\u206c\u200d\u200b\u206f\u206c\u2064\u206e"
+          "content": "Based on the provided job description, we recommend the following assessments for a Senior Full-Stack Engineer:\u2064\u200b\u2060\u2064\u206f\u2064\u200c\u2064\u2060\u206f\u2064\u200b\u2060\u206a\u206f\u2064\u200b\u200d\u206d\u206f\u206c\u2064\u206e\u206f\u206c\u200d\u200b"
         },
         {
           "role": "user",
@@ -498,7 +496,7 @@
         },
         {
           "role": "assistant",
-          "content": "Recommended assessments for a Senior Full-Stack Engineer with a focus on backend development and leadership responsibilities.\u2064\u200b\u2060\u2064\u206f\u2064\u200c\u2064\u2060\u206f\u2060\u206c\u206d\u206e\u206f\u206c\u200d\u200b"
+          "content": "Recommended assessments for a Senior Full-Stack Engineer with a focus on backend development and leadership responsibilities.\u2064\u200b\u2060\u2064\u206f\u2064\u200b\u2060\u206a\u206f\u2064\u200b\u2060\u200d\u206f\u2060\u206c\u206d\u206e\u206f\u2064\u200b\u200d\u206d\u206f\u206c\u200d\u200b"
         },
         {
           "role": "user",
@@ -514,7 +512,7 @@
         },
         {
           "role": "assistant",
-          "content": "Considering the existing services and the senior IC role, we recommend the Core Java (Entry Level) assessment to ensure they have a solid foundation in Java.\u2064\u200b\u2060\u200d\u206f\u2064\u200b\u200d\u206d\u206f\u2060\u206d\u200b\u206e\u206f\u2064\u200b\u206a\u206e\u206f\u206c\u2064\u206e\u206f\u206c\u200d\u200b"
+          "content": "Considering the existing services and the senior IC role, we recommend the Entry Level Core Java assessment to ensure they have a solid foundation in Java.\u2064\u200b\u2060\u200d\u206f\u2060\u206d\u200b\u206e\u206f\u2064\u200b\u200d\u206d\u206f\u2064\u200b\u206a\u206e\u206f\u206c\u2064\u206e\u206f\u206c\u200d\u200b"
         },
         {
           "role": "user",
@@ -522,7 +520,7 @@
         },
         {
           "role": "assistant",
-          "content": "We agree that Verify G+ may be redundant given the technical assessments.\u2064\u200b\u2060\u206a\u206f\u2064\u200b\u2060\u200d\u206f\u2064\u200b\u2060\u2064\u206f\u2064\u200b\u200d\u206d\u206f\u2064\u200b\u206a\u206e\u206f\u2064\u200c\u2064\u2060\u206f\u206c\u200d\u200b\u206f\u206c\u2064\u206e"
+          "content": "We agree that Verify G+ may be redundant given the technical assessments.\u2064\u200b\u2060\u206a\u206f\u2064\u200b\u2060\u200d\u206f\u2064\u200b\u2060\u2064\u206f\u2064\u200b\u200d\u206d\u206f\u2064\u200b\u206a\u206e\u206f\u2064\u200c\u2064\u2060\u206f\u2064\u200c\u2064\u206b\u206f\u206c\u2064\u206e\u206f\u206c\u200d\u200b"
         },
         {
           "role": "user",
@@ -530,11 +528,11 @@
         },
         {
           "role": "assistant",
-          "content": "Recommended assessments for a Senior Full-Stack Engineer with a focus on backend development, leadership responsibilities, and expertise in AWS and Docker.\u2064\u200b\u2060\u200d\u206f\u2064\u200c\u2064\u2060\u206f\u2064\u200b\u200d\u206d\u206f\u2060\u206e\u206c\u200c\u206f\u206c\u200d\u200b\u206f\u206c\u2064\u206e"
+          "content": "Recommended assessments for a Senior Full-Stack Engineer with a focus on backend development, leadership responsibilities, and expertise in AWS and Docker.\u2064\u200b\u2060\u200d\u206f\u206c\u2064\u206e\u206f\u2060\u206e\u206c\u200c\u206f\u206c\u200d\u200b"
         }
       ],
       "turns_used": 7,
-      "recall@10": 0.5714285714285714
+      "recall@10": 0.2857142857142857
     }
   ]
 }

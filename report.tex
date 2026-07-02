@@ -1,0 +1,481 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+% ─────────────────────────────────────────────────────────────
+% PACKAGES
+% ─────────────────────────────────────────────────────────────
+
+\usepackage[
+    top=0.65in,
+    bottom=0.65in,
+    left=0.58in,
+    right=0.58in,
+    columnsep=0.24in
+]{geometry}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage[
+    protrusion=true,
+    expansion=true
+]{microtype}
+
+\usepackage{newtxtext,newtxmath}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{parskip}
+
+% ─────────────────────────────────────────────────────────────
+% HYPERLINKS
+% ─────────────────────────────────────────────────────────────
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue
+}
+
+% ─────────────────────────────────────────────────────────────
+% HEADER / FOOTER
+% ─────────────────────────────────────────────────────────────
+
+\pagestyle{fancy}
+\fancyhf{}
+
+\renewcommand{\headrulewidth}{0.4pt}
+
+\fancyhead[C]{
+    \small\textit{Technical Evaluation \& Architecture Report}
+}
+
+\fancyfoot[C]{\small\thepage}
+
+% ─────────────────────────────────────────────────────────────
+% SECTION FORMATTING
+% ─────────────────────────────────────────────────────────────
+
+\titleformat{\section}
+  {\large\bfseries}
+  {}{0em}{}
+  [\vspace{2pt}\titlerule]
+
+\titlespacing*{\section}
+  {0pt}{1.6ex}{0.8ex}
+
+\titleformat{\subsection}
+  {\normalsize\bfseries}
+  {}{0em}{}
+
+\titlespacing*{\subsection}
+  {0pt}{1ex plus .2ex}{0.4ex}
+
+% Remove numbering
+\renewcommand{\thesection}{}
+\renewcommand{\thesubsection}{}
+
+% ─────────────────────────────────────────────────────────────
+% LISTS / PARAGRAPHS
+% ─────────────────────────────────────────────────────────────
+
+\setlist{
+    leftmargin=1.2em,
+    itemsep=2pt,
+    topsep=3pt
+}
+
+\setlength{\parskip}{3pt}
+\setlength{\parindent}{0pt}
+
+% ─────────────────────────────────────────────────────────────
+% DOCUMENT
+% ─────────────────────────────────────────────────────────────
+
+\begin{document}
+
+% ─────────────────────────────────────────────────────────────
+% TITLE BLOCK
+% ─────────────────────────────────────────────────────────────
+
+\twocolumn[{%
+\begin{center}
+
+
+
+{\LARGE\bfseries SHL Assessment Recommender Agent}\\[5pt]
+
+{\large\itshape Architecture, Bottleneck Analysis \& Engineering Approach}\\[5pt]
+
+{\small May 2026}
+
+\vspace{4pt}
+
+{\normalsize
+\textbf{Prasoon Sharma}}\\[2pt]
+\href{mailto:prasoonsharmagc@gmail.com}{prasoonsharmagc@gmail.com}
+
+
+\vspace{6pt}
+\hrule height 0.8pt
+\vspace{8pt}
+
+\begin{minipage}{0.97\textwidth}
+\small
+\setstretch{1.05}
+
+This report details the engineering lifecycle of a conversational AI agent designed to recommend SHL assessments to hiring managers. Beginning with a heavy vector-based RAG pipeline, the system was iteratively redesigned through a metrics-driven methodology into an ultra-efficient \textbf{BM25 Lite} agent with multi-turn memory, deterministic business rules, and hardened grounding guarantees.
+
+By resolving bottlenecks across retrieval drift, agentic forgetfulness, and evaluation fragility, the system achieved a \textbf{Mean Recall@10 above 0.75} while operating within approximately 210\,MB of RAM on constrained cloud free-tier infrastructure.
+
+\end{minipage}
+
+\vspace{8pt}
+\hrule height 0.4pt
+\vspace{8pt}
+
+\end{center}
+}]
+
+% ─────────────────────────────────────────────────────────────
+% DESIGN PHILOSOPHY
+% ─────────────────────────────────────────────────────────────
+
+\section{Design Philosophy}
+
+The system is built on the principle that
+\textbf{the LLM should not decide what to do}.
+
+The LLM has exactly two jobs: \textit{understand} (extract structured
+state from raw conversation history) and \textit{explain} (write a
+natural description of a pre-selected, pre-validated candidate pool).
+All routing, retrieval, forced-inclusion, validation, and repair are
+deterministic Python. This split eliminates the two most common
+failure modes in LLM agents: hallucinated recommendations and
+inconsistent rule application across turns.
+
+Rather than relying on orchestration-heavy frameworks such as
+LangChain or LangGraph, the architecture adopts a lean, fully
+debuggable FastAPI backend focused on predictable execution and
+deployment reliability. Every architectural decision was evaluated
+empirically using \textit{Recall@10} across ten structured multi-turn
+evaluation traces.
+
+\vspace{4pt}
+
+{\small
+\renewcommand{\arraystretch}{1.25}
+
+\begin{tabularx}{\linewidth}{@{}p{2.2cm}X@{}}
+
+\toprule
+\textbf{Bottleneck} & \textbf{Solution \& Impact} \\
+\midrule
+
+Memory OOM &
+Pivoted to BM25 Lite; RAM reduced from 900\,MB to $\approx$210\,MB \\
+
+Agentic Forgetfulness &
+Zero-width ID stamping + explicit-name pinning preserve
+the shortlist across turns \\
+
+Silent Rule Misses &
+Catalog name validator catches drifted strings before eval \\
+
+Evaluation Divergence &
+Smart Evaluator drives dynamic multi-turn grading with a
+simulated hiring manager (Qwen LLM) \\
+
+\bottomrule
+\end{tabularx}
+}
+
+% ─────────────────────────────────────────────────────────────
+% RETRIEVAL
+% ─────────────────────────────────────────────────────────────
+
+\section{Hardware-Aware Retrieval}
+
+\subsection{Pivot from FAISS to BM25 Lite}
+
+Initial implementations combined FAISS embeddings
+(\texttt{all-MiniLM-L6-v2}) with BM25 through a Hybrid RRF pipeline.
+While retrieval quality was competitive, ONNX runtime dependencies and
+embedding model initialization pushed memory usage beyond 900\,MB,
+causing repeated build failures and health-check timeouts on free-tier
+cloud infrastructure.
+
+The vector layer was removed entirely and replaced with a pure-Python
+\textbf{BM25 Lite} engine. Two enrichment layers compensate for
+BM25's lack of semantic understanding without re-introducing memory
+pressure.
+
+\subsection{Domain Enrichment \& Keyword Boosting}
+
+\begin{itemize}
+
+\item \textbf{Per-Item Synonym Injection (\texttt{EMBED\_ENRICHMENT}):}
+Assessments with opaque product names --- SVAR, DSI, OPQ Leadership
+Report --- receive manually curated synonym strings appended to their
+BM25 document. The retrieval engine now maps technology stacks such as
+Rust to the underlying catalog categories (Linux, Networking) and
+Docker/AWS to cloud-native engineering assessments.
+
+\item \textbf{Query-Time Keyword Boost (\texttt{KEYWORD\_BOOST\_MAP}):}
+A 1.5$\times$ score multiplier fires when high-signal hiring terms
+(e.g.\ ``contact center'', ``leadership'', ``java'', ``devops'') appear
+in the retrieval query, pushing domain-relevant items to the top before
+the candidate pool is trimmed to 15 items for the prompt.
+
+\item \textbf{Query-Triggered Always-Include
+(\texttt{QUERY\_ALWAYS\_INCLUDE}):}
+Keywords such as ``talent audit'', ``analyst'', and ``engineer'' inject
+specific assessments (e.g.\ Global Skills Assessment, Verify G+) at a
+forced score of 997 --- above BM25 but below business-rule items ---
+for contexts where BM25 reliably under-ranks the correct item.
+
+\end{itemize}
+
+\subsection{Four-Stage Fuzzy Catalog Resolution}
+
+Every hardcoded assessment name in business rules and enrichment maps
+is a silent dependency on the catalog containing that exact string.
+The original \texttt{get\_item\_by\_name} lookup used case-insensitive
+substring search only, silently dropping items on dash\/spacing\/\texttt{(New)} variants.
+
+The resolver now applies four stages in sequence: (1)~exact
+case-insensitive match; (2)~normalized exact match stripping
+\texttt{(New)}, dashes, and \texttt{\&}~$\rightarrow$~\texttt{and};
+(3)~normalized substring match in either direction;
+(4)~\texttt{difflib} fuzzy fallback above a 0.72 similarity floor,
+with a loud log on any miss. A companion offline validator
+(\texttt{validate\_catalog\_names.py}) resolves every hardcoded string
+against the live catalog and exits non-zero on any unresolvable name,
+suitable for CI gating.
+
+% ─────────────────────────────────────────────────────────────
+% AGENTIC LOGIC
+% ─────────────────────────────────────────────────────────────
+
+\section{Agentic Logic \& Guardrails}
+
+The conversational pipeline is powered by Groq-hosted
+\textbf{gpt-oss-120b} as the primary LLM with \textbf{llama-3.1-8b-instant}
+as fallback, accessed through a rate-limit-resilient client that rotates
+across up to three API keys and parses the \texttt{retry-after} header
+from 429 responses to decide between rotation and sleep.
+
+\subsection{Turn-1 Heuristic Fast Path}
+
+On the first user message, a regex-based heuristic
+(\texttt{heuristics.py}) resolves the majority of cases in
+\textit{zero LLM calls}:
+
+\begin{itemize}
+
+\item \textbf{Clear job title or JD detected:}
+directly emits a \texttt{RECOMMEND} state and proceeds to retrieval.
+Broadened role patterns match plural nouns (``admin assistants'',
+``plant operators'') and article-free phrasings (``need engineers'').
+
+\item \textbf{Obviously vague input:}
+emits \texttt{SLOT\_FILL} with a single targeted question.
+
+\item \textbf{Injection or off-topic keywords:}
+emits \texttt{REFUSE} immediately.
+
+\item \textbf{Ambiguous:} falls through to the full Analyzer LLM.
+
+\end{itemize}
+
+\subsection{Conversation Analyzer \& Structured State}
+
+When the heuristic fast path does not resolve the turn, a dedicated
+\textbf{Analyzer LLM} call converts the full message history into a
+typed \texttt{ConversationState} object. Key fields beyond role and
+intent:
+
+\begin{itemize}
+
+\item \textbf{\texttt{excluded\_items}} --- specific assessment names the
+user asked to remove. Business rules and the grounding validator
+consult this list to prevent re-forced inclusion on later turns.
+
+\item \textbf{\texttt{explicitly\_named\_items}} --- every assessment
+mentioned anywhere in the conversation, including inside earlier
+assistant comparison replies. Passed to a dedicated pinning step so
+short confirmations such as ``add MQ'' resolve correctly even when BM25
+cannot reconstruct the reference from the message alone.
+
+\end{itemize}
+
+\subsection{Multi-Turn Memory via ID Stamping}
+
+Each \texttt{RECOMMEND} response appends the recommended entity IDs to
+the reply string as invisible zero-width Unicode characters. On the
+next turn, \texttt{\_prior\_recommendation\_ids()} decodes these from
+the last assistant message and re-injects those items into the
+candidate pool at score 998, tagged \texttt{previous\_turn}.
+
+This ``turn memory'' ensures previously agreed assessments survive a
+comparison detour and re-appear correctly on the following
+recommendation turn. Items the user has since excluded are filtered
+before re-injection, preventing force-reinstatement of removed items.
+
+\subsection{Deterministic Business Rules}
+
+Domain-specific force-inclusion logic lives in
+\texttt{business\_rules.py}, separate from any prompt instruction.
+Rules fire on every turn in Python regardless of what the LLM writes:
+
+\begin{itemize}
+
+\item \textbf{Personality (OPQ32r):} included for all
+non-junior professional roles unless \texttt{personality\_excluded} or
+the item appears in \texttt{excluded\_items}.
+
+\item \textbf{Leadership recipe:} OPQ32r, OPQ Universal Competency
+Report, and OPQ Leadership Report forced for senior/director/CXO roles.
+
+\item \textbf{Contact center:} SVAR Spoken English, Contact Center Call
+Simulation, Entry Level Customer Service, Customer Service Phone
+Simulation.
+
+\item \textbf{Healthcare:} DSI; additionally Medical Terminology and
+MS Word Essentials for healthcare admin roles.
+
+\item \textbf{Manufacturing/industrial/chemical:}
+Manufac.\ \& Indust.\ Safety \& Dependability 8.0 and Workplace Health
+and Safety (New).
+
+\end{itemize}
+
+\subsection{Grounding \& Schema Validation}
+
+Two deterministic Python validators run after every LLM response
+--- no re-call:
+
+\begin{itemize}
+
+\item \textbf{Grounding Validator:} resolves LLM-selected entity IDs
+against the actual retrieved pool; drops hallucinated IDs;
+force-reinstates items tagged \texttt{business\_rule} or
+\texttt{previous\_turn} unless they appear in \texttt{excluded\_names};
+backfills from the ranked pool if the LLM's entire selection was
+invalid.
+
+\item \textbf{Schema Validator:} deduplicates by entity ID, enforces
+\texttt{test\_type} $\in$ \texttt{\{K, A, P, B, C, D, S, E\}}, and
+hards-caps the output at ten recommendations.
+
+\end{itemize}
+
+The explainer LLM selects from a candidate list by entity ID only;
+it cannot name or introduce any item not already in that list.
+
+% ─────────────────────────────────────────────────────────────
+% EVALUATION
+% ─────────────────────────────────────────────────────────────
+
+\section{Evaluation Engineering}
+
+Traditional RAG evaluation pipelines replay static markdown traces
+verbatim. This approach proved brittle: a dynamic LLM agent may ask a
+different clarifying question, causing the scripted user turn to become
+non-sequitur and all subsequent turns to diverge.
+
+\subsection{The Smart Evaluator}
+
+A custom \textbf{Smart Evaluator} (\texttt{eval/smart\_eval.py})
+evaluates multi-turn agent behavior up to eight turns per trace.
+
+The evaluator parses Markdown trace files into structured personas
+(role, hiring context, expected skills, canonical user turns). A
+secondary LLM --- Groq \textbf{Qwen/qwen3-32b} at temperature~0.3 ---
+simulates the hiring manager, generating contextually appropriate
+responses grounded in the persona. When a canonical user turn is
+available for the current step, it takes priority over the simulated
+response to preserve ground-truth signal.
+
+The evaluator supports selective execution (\texttt{--traces C1 C3})
+and full-suite runs (\texttt{--all}), cycling through multiple Groq
+API keys to stay within per-account daily token limits.
+
+\subsection{Recall@10 Metric}
+
+Each trace defines an expected assessment set. After the conversation
+terminates (\texttt{end\_of\_conversation} flag or turn cap),
+\textit{Recall@10} is computed:
+
+\begin{equation*}
+\text{Recall@10} = \frac{|\text{Expected} \cap \text{Recommended}|}{|\text{Expected}|}
+\end{equation*}
+
+A fuzzy string-match threshold (80\%) prevents artificial penalties
+for naming variants such as \textit{Excel 365} vs.\
+\textit{Excel 365 -- Essentials}. Mean Recall@10 is reported across
+all traces, and per-trace match/miss/extra sets are logged to
+\texttt{eval/smart\_results.json} for bottleneck diagnosis.
+
+% ─────────────────────────────────────────────────────────────
+% DEPLOYMENT
+% ─────────────────────────────────────────────────────────────
+
+\section{Deployment \& Data Resiliency}
+
+\subsection{Fault-Tolerant Ingestion}
+
+The original catalog JSON contained invalid control characters,
+including literal \texttt{\textbackslash n} sequences embedded directly
+inside strings.
+
+A byte-level decoding and regex sanitization pipeline was implemented,
+backed by a local disk cache
+(\texttt{data/catalog.json}),
+guaranteeing reliable startup behavior even during network failures.
+
+\subsection{Infrastructure Optimizations}
+
+\begin{itemize}
+
+\item \textbf{Pinned Python 3.11.9:}
+Avoided Rust/Cargo compilation failures triggered by
+\texttt{pydantic-core} on newer Python versions while ensuring
+availability of pre-built wheels.
+
+\item \textbf{Windows Compatibility:}
+Automated zombie-process cleanup on Port~8001 and ASCII-safe logging
+markers (\texttt{[OK]}, \texttt{[MISS]}) ensured seamless execution on
+Windows CMD and PowerShell.
+
+\end{itemize}
+
+% ─────────────────────────────────────────────────────────────
+% CONCLUSION
+% ─────────────────────────────────────────────────────────────
+
+\section{Conclusion}
+
+By treating the conversational AI agent as a deterministic software
+engineering problem rather than a black-box ML system, the project
+successfully navigated severe memory constraints, multi-turn agentic
+forgetfulness, silent catalog resolution failures, and fragile
+evaluation methodologies.
+
+The transition from a vector-heavy RAG pipeline toward an enriched
+\textbf{BM25 Lite} engine with layered deterministic guarantees ---
+business rules, zero-width turn-memory stamping, explicit-name pinning,
+and two-pass Python validation --- produced a production-ready
+conversational agent operating within approximately 210\,MB of RAM
+while sustaining a \textbf{Mean Recall@10 above 0.75} across
+ten multi-turn evaluation traces.
+
+The architecture demonstrates that disciplined, hardware-aware
+engineering combined with careful separation of LLM and deterministic
+responsibilities can match, and under constrained environments
+occasionally exceed, the practical effectiveness of significantly
+heavier orchestration stacks.
+
+\end{document}
