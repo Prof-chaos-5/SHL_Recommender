@@ -7,16 +7,45 @@ from app.agent import run_agent
 from app.models import ChatRequest, ChatResponse
 
 
+tags_metadata = [
+    {
+        "name": "Recommendations",
+        "description": "Conversational assessment recommendation endpoints.",
+    },
+    {
+        "name": "Health",
+        "description": "Service monitoring and availability.",
+    },
+]
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Load catalog and build FAISS index at startup."""
-    print("[startup] Loading catalog and building index...")
+    """Initialize retrieval pipeline at startup."""
+    print("[startup] Loading assessment catalog...")
     retrieval.startup()
-    print("[startup] Ready.")
+    print("[startup] API ready.")
     yield
 
 
-app = FastAPI(title="SHL Assessment Recommender", lifespan=lifespan)
+app = FastAPI(
+    title="SHL Assessment Recommendation Agent",
+    description="""
+Production-ready conversational recommendation API developed for the SHL GenAI Challenge.
+
+### Features
+- Conversational assessment recommendation
+- BM25 retrieval engine
+- Multi-turn conversational memory
+- Deterministic grounding validation
+- RESTful API with OpenAPI documentation
+
+Built using FastAPI and designed for scalable deployment.
+""",
+    version="1.0.0",
+    lifespan=lifespan,
+    openapi_tags=tags_metadata,
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -26,30 +55,50 @@ app.add_middleware(
 )
 
 
-@app.get("/")
+@app.get("/", summary="API Information")
 def root():
     return {
-        "message": "SHL Assessment Recommender API is Live",
-        "endpoints": {
-            "health": "/health",
-            "recommend": "/chat",
-            "documentation": "/docs"
-        }
+        "name": "SHL Assessment Recommendation Agent",
+        "version": "1.0.0",
+        "status": "online",
+        "documentation": "/docs",
+        "health": "/health",
+        "chat": "/chat",
     }
 
 
-@app.get("/health")
+@app.get(
+    "/health",
+    tags=["Health"],
+    summary="Health Check",
+    description="Returns the operational status of the API.",
+)
 def health():
     return {"status": "ok"}
 
 
-@app.post("/chat", response_model=ChatResponse)
+@app.post(
+    "/chat",
+    tags=["Recommendations"],
+    summary="Recommend SHL Assessments",
+    description="""
+Returns relevant SHL assessments based on a user's hiring requirements
+through a conversational retrieval pipeline.
+""",
+    response_model=ChatResponse,
+)
 async def chat_endpoint(request: ChatRequest):
-    if not request.messages:
-        raise HTTPException(status_code=422, detail="messages cannot be empty")
 
-    # Hard cap: evaluator sends max 8 turns, just be safe
+    if not request.messages:
+        raise HTTPException(
+            status_code=422,
+            detail="messages cannot be empty",
+        )
+
     if len(request.messages) > 20:
-        raise HTTPException(status_code=422, detail="too many messages")
+        raise HTTPException(
+            status_code=422,
+            detail="too many messages",
+        )
 
     return run_agent(request.messages)
