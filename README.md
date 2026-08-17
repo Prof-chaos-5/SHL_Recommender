@@ -2,6 +2,12 @@
 
 A production-oriented conversational AI agent that helps recruiters and hiring managers find the right SHL assessments for their roles. The agent handles multi-turn conversations, comparison questions, slot-filling clarifications, and domain-specific business rules, with deterministic grounding and validation to prevent assessments outside the catalog from reaching the final recommendation set.
 
+### 🔗 Try it live
+
+**[Live API Playground]([YOUR_SWAGGER_URL](https://shl-recommender-k7yn.onrender.com/docs))**
+
+Explore the `/chat` endpoint directly through the interactive Swagger UI and test multi-turn recommendation, comparison, and slot-filling flows.
+
 Read the full technical deep dive in the **[Architecture & Approach Document](APPROACH.md)**.
 
 ---
