@@ -4,7 +4,7 @@ A production-oriented conversational AI agent that helps recruiters and hiring m
 
 ### 🔗 Try it live
 
-**[Live API Playground]([https://shl-recommender-k7yn.onrender.com/docs])**
+**[Live API Playground](https://shl-recommender-k7yn.onrender.com/docs)**
 
 Explore the `/chat` endpoint directly through the interactive Swagger UI and test multi-turn recommendation, comparison, and slot-filling flows.
 
