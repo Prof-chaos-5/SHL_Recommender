@@ -1,6 +1,6 @@
 # SHL Assessment Recommender Agent
 
-A production-grade conversational AI agent that helps recruiters and hiring managers find the right SHL assessments for their roles. The agent handles multi-turn conversations, comparison questions, slot-filling clarifications, and domain-specific business rules — all without hallucinating assessments not in the catalog.
+A production-oriented conversational AI agent that helps recruiters and hiring managers find the right SHL assessments for their roles. The agent handles multi-turn conversations, comparison questions, slot-filling clarifications, and domain-specific business rules, with deterministic grounding and validation to prevent assessments outside the catalog from reaching the final recommendation set.
 
 Read the full technical deep dive in the **[Architecture & Approach Document](APPROACH.md)**.
 
